@@ -3,7 +3,9 @@ import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated")({ component: AuthGuard });
+export const Route = createFileRoute("/_authenticated")({
+  component: AuthGuard,
+});
 
 function AuthGuard() {
   const { user, loading } = useAuth();
