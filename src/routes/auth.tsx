@@ -120,3 +120,4 @@ function AuthPage() {
     </div>
   );
 }
+
