@@ -9,64 +9,126 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as VergleichRouteImport } from './routes/vergleich'
+import { Route as BeratungRouteImport } from './routes/beratung'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedPoliceUploadRouteImport } from './routes/_authenticated.police-upload'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const VergleichRoute = VergleichRouteImport.update({
+  id: '/vergleich',
+  path: '/vergleich',
   getParentRoute: () => rootRouteImport,
 } as any)
-
+const BeratungRoute = BeratungRouteImport.update({
+  id: '/beratung',
+  path: '/beratung',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedPoliceUploadRoute =
+  AuthenticatedPoliceUploadRouteImport.update({
+    id: '/police-upload',
+    path: '/police-upload',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '': typeof AuthenticatedRoute
+  '/beratung': typeof BeratungRoute
+  '/vergleich': typeof VergleichRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/police-upload': typeof AuthenticatedPoliceUploadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '': typeof AuthenticatedRoute
+  '/beratung': typeof BeratungRoute
+  '/vergleich': typeof VergleichRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/police-upload': typeof AuthenticatedPoliceUploadRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
-  '/_authenticated': typeof AuthenticatedRoute
+  '/beratung': typeof BeratungRoute
+  '/vergleich': typeof VergleichRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/police-upload': typeof AuthenticatedPoliceUploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | ''
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/beratung'
+    | '/vergleich'
+    | '/dashboard'
+    | '/police-upload'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | ''
-  id: '__root__' | '/' | '/auth' | '/_authenticated'
+  to:
+    | '/'
+    | '/auth'
+    | '/beratung'
+    | '/vergleich'
+    | '/dashboard'
+    | '/police-upload'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/beratung'
+    | '/vergleich'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/police-upload'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
-  AuthenticatedRoute: typeof AuthenticatedRoute
+  BeratungRoute: typeof BeratungRoute
+  VergleichRoute: typeof VergleichRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/vergleich': {
+      id: '/vergleich'
+      path: '/vergleich'
+      fullPath: '/vergleich'
+      preLoaderRoute: typeof VergleichRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/beratung': {
+      id: '/beratung'
+      path: '/beratung'
+      fullPath: '/beratung'
+      preLoaderRoute: typeof BeratungRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -79,18 +141,65 @@ declare module '@tanstack/react-router' {
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/police-upload': {
+      id: '/_authenticated/police-upload'
+      path: '/police-upload'
+      fullPath: '/police-upload'
+      preLoaderRoute: typeof AuthenticatedPoliceUploadRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPoliceUploadRoute: typeof AuthenticatedPoliceUploadRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPoliceUploadRoute: AuthenticatedPoliceUploadRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
-  AuthenticatedRoute: AuthenticatedRoute,
+  BeratungRoute: BeratungRoute,
+  VergleichRoute: VergleichRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
