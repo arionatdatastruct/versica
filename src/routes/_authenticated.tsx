@@ -1,17 +1,13 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated")({ component: AuthGuard });
+export const Route = createFileRoute("/_authenticated")({
+  component: AuthGuard,
+});
 
 function AuthGuard() {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth", replace: true });
-  }, [user, loading, navigate]);
 
   if (loading || !user) {
     return (
