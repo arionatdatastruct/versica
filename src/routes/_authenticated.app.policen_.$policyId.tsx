@@ -17,7 +17,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { deletePolicy } from "@/lib/policy-actions";
-import { DeleteButton } from "./_authenticated.policen";
+import { DeleteButton } from "./_authenticated.app.policen";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/app/policen_/$policyId")({
