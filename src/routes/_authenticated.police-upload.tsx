@@ -33,7 +33,7 @@ function PoliceUpload() {
     if (file.size > MAX_BYTES) return toast.error("Maximal 10 MB.");
 
     setUploading(true);
-    setStatusMsg("Lade deine Police hoch …");
+    setStatusMsg("Lade Police hoch …");
 
     try {
       const { data: inserted, error: insErr } = await ((supabase as any).from("policies") as any)
