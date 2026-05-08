@@ -39,6 +39,8 @@ function PoliceBestaetigen() {
   const [saving, setSaving] = useState(false);
   const [policy, setPolicy] = useState<any>(null);
   const [members, setMembers] = useState<Member[]>([]);
+  const [duplicates, setDuplicates] = useState<Array<{ id: string; insurer: string | null; policy_number: string | null; valid_from: string | null; confirmed_at: string | null }>>([]);
+  const [discarding, setDiscarding] = useState(false);
 
   // Police-Info
   const [policyType, setPolicyType] = useState<string>("");
