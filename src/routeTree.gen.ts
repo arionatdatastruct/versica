@@ -10,6 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VergleichRouteImport } from './routes/vergleich'
+import { Route as UeberUnsRouteImport } from './routes/ueber-uns'
+import { Route as PreiseRouteImport } from './routes/preise'
+import { Route as KontaktRouteImport } from './routes/kontakt'
+import { Route as ImpressumRouteImport } from './routes/impressum'
+import { Route as DatenschutzRouteImport } from './routes/datenschutz'
 import { Route as BeratungRouteImport } from './routes/beratung'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated.route'
@@ -30,6 +35,31 @@ import { Route as AuthenticatedAppPoliceBestaetigenPolicyIdRouteImport } from '.
 const VergleichRoute = VergleichRouteImport.update({
   id: '/vergleich',
   path: '/vergleich',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UeberUnsRoute = UeberUnsRouteImport.update({
+  id: '/ueber-uns',
+  path: '/ueber-uns',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreiseRoute = PreiseRouteImport.update({
+  id: '/preise',
+  path: '/preise',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontaktRoute = KontaktRouteImport.update({
+  id: '/kontakt',
+  path: '/kontakt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpressumRoute = ImpressumRouteImport.update({
+  id: '/impressum',
+  path: '/impressum',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DatenschutzRoute = DatenschutzRouteImport.update({
+  id: '/datenschutz',
+  path: '/datenschutz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BeratungRoute = BeratungRouteImport.update({
@@ -124,6 +154,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/beratung': typeof BeratungRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
+  '/kontakt': typeof KontaktRoute
+  '/preise': typeof PreiseRoute
+  '/ueber-uns': typeof UeberUnsRoute
   '/vergleich': typeof VergleichRoute
   '/app/check': typeof AuthenticatedAppCheckRoute
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
@@ -142,6 +177,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/beratung': typeof BeratungRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
+  '/kontakt': typeof KontaktRoute
+  '/preise': typeof PreiseRoute
+  '/ueber-uns': typeof UeberUnsRoute
   '/vergleich': typeof VergleichRoute
   '/app/check': typeof AuthenticatedAppCheckRoute
   '/app/dashboard': typeof AuthenticatedAppDashboardRoute
@@ -162,6 +202,11 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/beratung': typeof BeratungRoute
+  '/datenschutz': typeof DatenschutzRoute
+  '/impressum': typeof ImpressumRoute
+  '/kontakt': typeof KontaktRoute
+  '/preise': typeof PreiseRoute
+  '/ueber-uns': typeof UeberUnsRoute
   '/vergleich': typeof VergleichRoute
   '/_authenticated/app/check': typeof AuthenticatedAppCheckRoute
   '/_authenticated/app/dashboard': typeof AuthenticatedAppDashboardRoute
@@ -182,6 +227,11 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/beratung'
+    | '/datenschutz'
+    | '/impressum'
+    | '/kontakt'
+    | '/preise'
+    | '/ueber-uns'
     | '/vergleich'
     | '/app/check'
     | '/app/dashboard'
@@ -200,6 +250,11 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/beratung'
+    | '/datenschutz'
+    | '/impressum'
+    | '/kontakt'
+    | '/preise'
+    | '/ueber-uns'
     | '/vergleich'
     | '/app/check'
     | '/app/dashboard'
@@ -219,6 +274,11 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/beratung'
+    | '/datenschutz'
+    | '/impressum'
+    | '/kontakt'
+    | '/preise'
+    | '/ueber-uns'
     | '/vergleich'
     | '/_authenticated/app/check'
     | '/_authenticated/app/dashboard'
@@ -239,6 +299,11 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   BeratungRoute: typeof BeratungRoute
+  DatenschutzRoute: typeof DatenschutzRoute
+  ImpressumRoute: typeof ImpressumRoute
+  KontaktRoute: typeof KontaktRoute
+  PreiseRoute: typeof PreiseRoute
+  UeberUnsRoute: typeof UeberUnsRoute
   VergleichRoute: typeof VergleichRoute
   ApiPublicHooksCleanupOrphanUploadsRoute: typeof ApiPublicHooksCleanupOrphanUploadsRoute
 }
@@ -250,6 +315,41 @@ declare module '@tanstack/react-router' {
       path: '/vergleich'
       fullPath: '/vergleich'
       preLoaderRoute: typeof VergleichRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ueber-uns': {
+      id: '/ueber-uns'
+      path: '/ueber-uns'
+      fullPath: '/ueber-uns'
+      preLoaderRoute: typeof UeberUnsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preise': {
+      id: '/preise'
+      path: '/preise'
+      fullPath: '/preise'
+      preLoaderRoute: typeof PreiseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kontakt': {
+      id: '/kontakt'
+      path: '/kontakt'
+      fullPath: '/kontakt'
+      preLoaderRoute: typeof KontaktRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impressum': {
+      id: '/impressum'
+      path: '/impressum'
+      fullPath: '/impressum'
+      preLoaderRoute: typeof ImpressumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/datenschutz': {
+      id: '/datenschutz'
+      path: '/datenschutz'
+      fullPath: '/datenschutz'
+      preLoaderRoute: typeof DatenschutzRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/beratung': {
@@ -405,6 +505,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   BeratungRoute: BeratungRoute,
+  DatenschutzRoute: DatenschutzRoute,
+  ImpressumRoute: ImpressumRoute,
+  KontaktRoute: KontaktRoute,
+  PreiseRoute: PreiseRoute,
+  UeberUnsRoute: UeberUnsRoute,
   VergleichRoute: VergleichRoute,
   ApiPublicHooksCleanupOrphanUploadsRoute:
     ApiPublicHooksCleanupOrphanUploadsRoute,
