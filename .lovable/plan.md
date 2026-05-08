@@ -1,91 +1,96 @@
-## Ziel
+## Empfohlene Reihenfolge
 
-1. PDF-Vorschau auf der Bestätigungs- und Detailseite zuverlässig anzeigen.
-2. Marketing-Seiten und eingeloggte Plattform sauber per URL trennen: alles unter `/app/*` ist Plattform, alles andere ist Marketing — **eine Codebase, kein zweites Lovable-Projekt nötig.**
-
----
-
-## Teil 1 — PDF-Vorschau fixen
-
-### Diagnose
-
-Der Code zur Vorschau existiert bereits in beiden Routen (`createSignedUrl` aus Bucket `policy-uploads` → `<iframe>` für PDF, `<img>` für Bilder). Wahrscheinliche Ursachen, dass nichts erscheint:
-
-- `policy.file_path` ist leer/null in der DB (Upload speichert ihn evtl. nicht korrekt).
-- MIME-Typ wird nicht erkannt (kein `pdf`/`image` Match → Fallback "kann nicht eingebettet werden").
-- Signed URL schlägt still fehl (RLS/Bucket-Policy auf `policy-uploads`).
-- Bei sehr breitem Viewport (User hat 2007px) könnte das Sticky-Layout den iframe verstecken (height 0).
-
-### Schritte
-
-1. **Datensatz prüfen**: kurzes Diagnose-Skript via Supabase-Query — gibt es für die Police `37760614…` einen `file_path`, einen `file_mime`, und liefert `createSignedUrl` einen Link?
-2. **Defensive Detection erweitern**: Wenn `file_mime` fehlt, von `file_path`-Endung auf PDF/Bild schließen (teilweise schon vorhanden, ausweiten auf jpg/png/heic).
-3. **Sichtbares Debug-Feedback**: Wenn `file_path` leer → klare Meldung "Keine Datei verknüpft – bitte erneut hochladen". Wenn signed-URL-Fehler → Fehlermeldung mit Statuscode statt nur Spinner.
-4. **Layout-Absicherung**: `<aside>` bekommt `min-h-[60vh]` zusätzlich zur Höhenangabe, damit der iframe garantiert eine Größe hat.
-5. **Detailseite (`policen_.$policyId.tsx`)**: gleiche Logik wie auf der Bestätigungsseite verifizieren, ggf. spiegeln.
-6. **Storage-Policy prüfen**: Eine SELECT-Policy auf `policy-uploads`, die `owner_id` aus `policies` joined; falls fehlend, ergänzen.
+Drei Pakete, in dieser Reihenfolge — jedes ist allein lieferbar und produktiv testbar.
 
 ---
 
-## Teil 2 — `/app/*`-Trennung (Plattform vs. Marketing)
+## Phase 1 — Marketing-Auftritt (Sichtbarkeit & Vertrauen)
 
-### Neue URL-Struktur
+Ziel: `/` und Unterseiten sehen aus wie ein echtes Schweizer Insurtech-Produkt, nicht wie ein Prototyp.
+
+### Neue/überarbeitete Routen
 
 ```text
-Marketing (öffentlich, ein Header/Footer):
-  /                  Landing
-  /beratung          (existiert)
-  /vergleich         (existiert)
-  /preise            (neu, optional)
-  /kontakt           (neu, optional)
-  /auth              Login/Signup
+/                Landing (Hero, How-it-works, Trust, Testimonials, CTA)
+/preise          Pricing (kostenlos vs. Premium)
+/ueber-uns       Über Versica (Mission, Team, FINMA-Status)
+/kontakt         Kontaktformular + Adresse
+/datenschutz     revDSG-konform
+/impressum       Schweizer Pflichtangaben
+```
 
-Plattform (eingeloggt, eigener App-Header):
-  /app                       → Redirect auf /app/dashboard
-  /app/dashboard
-  /app/policen
-  /app/policen/$policyId
-  /app/police-upload
-  /app/police-bestaetigen/$policyId
-  /app/familie
-  /app/familie-optimieren
-  /app/check
-  /app/empfehlungen
-  /app/kuendigung
+Bestehend: `/beratung` und `/vergleich` werden nur leicht angepasst (konsistente Hero-Sektion, CTA "Police hochladen").
+
+### Marketing-Header
+
+Kontextabhängig: auf `/*` (nicht `/app/*`) zeigt der Header Marketing-Nav (Beratung, Vergleich, Preise, Über uns), auf `/app/*` die Plattform-Nav.
+
+### Visuelles
+
+- Hero mit echter Wertversprechen-Headline ("Verstehe deine Krankenkasse in 60 Sekunden") + Live-Demo-Mockup
+- Trust-Bar (FINMA registriert, revDSG, Schweizer Hosting, SSL)
+- 3-Schritt-Erklärung mit Icons (Hochladen → Versica liest aus → Empfehlung erhalten)
+- Sozialer Beweis: 2-3 Mock-Testimonials oder "X Policen analysiert"
+- Pricing-Tabelle: Free vs. Premium (Premium z.B. unbegrenzte Policen + Wechsel-Service)
+- Footer mit allen Pflicht-Links
+
+---
+
+## Phase 2 — Onboarding-Flow
+
+Ziel: Neue Nutzer landen nicht auf leerem Dashboard, sondern werden geführt.
+
+### Flow
+
+```text
+Signup → /app/willkommen
+  Schritt 1: Bestätige deinen Namen + Wohnkanton
+  Schritt 2: Lade deine erste Police hoch (oder "überspringen")
+  Schritt 3: Familienmitglieder hinzufügen (oder "später")
+→ /app/dashboard mit Erfolgs-Banner
 ```
 
 ### Schritte
 
-1. **Routen umbenennen** (TanStack-Flat-Naming):
-   - `_authenticated.dashboard.tsx` → `_authenticated.app.dashboard.tsx`
-   - `_authenticated.policen.tsx` → `_authenticated.app.policen.tsx`
-   - `_authenticated.policen_.$policyId.tsx` → `_authenticated.app.policen_.$policyId.tsx`
-   - `_authenticated.police-upload.tsx` → `_authenticated.app.police-upload.tsx`
-   - `_authenticated.police-bestaetigen.$policyId.tsx` → `_authenticated.app.police-bestaetigen.$policyId.tsx`
-   - `_authenticated.familie.tsx`, `familie-optimieren.tsx`, `check.tsx`, `empfehlungen.tsx`, `kuendigung.tsx` → analog mit `app.`-Präfix.
-   - Neue Layout-Datei `_authenticated.app.tsx` mit `<Outlet />` als Plattform-Shell.
-   - Neue Index-Datei `_authenticated.app.index.tsx` → `<Navigate to="/app/dashboard" />`.
-
-2. **Alle internen Links anpassen**: `Link to="/dashboard"` → `Link to="/app/dashboard"` etc. Betrifft `Header.tsx`, alle Plattform-Seiten und `policy-actions`.
-
-3. **Alte URLs sauber redirecten**: Auf den Top-Level-Marketing-Routen `/dashboard`, `/policen` etc. eine Redirect-Komponente, die auf `/app/...` umleitet (Bookmark-Schutz). Alternativ leichter: nur in Header/Auth-Flow konsequent neue URLs verwenden, alte Routen löschen → 404 (akzeptabel, da bisher nur intern genutzt).
-
-4. **Header-Variante**: `Header.tsx` erkennt anhand von `pathname.startsWith("/app")`, ob Marketing- oder App-Header gerendert wird (Marketing: "Anmelden / Kostenlos starten", App: "Dashboard / Policen / Familie / Logout").
-
-5. **Marketing-Footer** bleibt nur auf `/`-Bereich; auf `/app/*` Footer ausblenden.
-
-### Warum kein zweites Projekt?
-
-- Eine Auth-Session, ein Datenmodell, ein Deploy.
-- Geteilte UI-Komponenten (Buttons, Tokens) ohne Sync-Aufwand.
-- Subdomain (`app.versica.ch`) lässt sich später trotzdem nachrüsten — Cloudflare/Custom-Domain auf gleiche App, der `/app/*`-Prefix kann dann optional weggelassen werden.
+1. Neue Route `_authenticated.app.willkommen.tsx` mit 3-Schritt-Wizard (Stepper-UI).
+2. Profilfeld `onboarded_at` in `profiles` ergänzen (Migration).
+3. `_authenticated.route.tsx` redirected nach Login auf `/app/willkommen`, falls `onboarded_at` null ist.
+4. Dashboard zeigt Empty-State-Variante mit Banner "Willkommen, hier ist dein Überblick" beim ersten Besuch.
+5. Skip-Buttons in Schritt 2 + 3, damit Nutzer nicht blockiert werden.
 
 ---
 
-## Reihenfolge
+## Phase 3 — Empfehlungs-Programm (Affiliate/Cashback)
 
-1. Diagnose & Fix der PDF-Vorschau (klein, ~20 Min).
-2. Routen umbenennen + Links aktualisieren (~30 Min, ein Commit).
-3. Header/Footer kontextabhängig rendern (~15 Min).
+Klärung: `/app/empfehlungen` ist heute als **Empfehlungs-/Affiliate-Seite** (Cashback für geworbene Freunde) angelegt — nicht als Versicherungs-Empfehlungen. Der Plan respektiert das.
 
-Marketing-Landingpage-Überarbeitung (Hero, Features, Pricing-Sektion etc.) ist bewusst **nicht** Teil dieses Plans — das machen wir als separaten Schritt, nachdem die Trennung steht.
+### Schritte
+
+1. Tabelle `referrals` (Migration):
+   - `id`, `referrer_id` (uuid → profiles), `referral_code` (text unique), `created_at`, `clicks`, `signups`, `cashback_chf`
+2. Beim Signup automatisch `referral_code` generieren (z.B. `versica.ch/?ref=ABC123`).
+3. `/app/empfehlungen` zeigt:
+   - Persönlichen Empfehlungslink mit Copy-Button
+   - Statistiken (Klicks / Anmeldungen / Cashback)
+   - "Wie es funktioniert" + FAQ
+   - Share-Buttons (WhatsApp, E-Mail)
+4. `?ref=CODE` in URL-Parameter wird beim Signup in einer Spalte `referred_by` mitgespeichert und löst Klick-/Signup-Counter aus.
+5. Cashback-Logik bewusst manuell (zunächst nur Tracking — Auszahlung als nächste Iteration).
+
+### Optional: Versicherungs-Empfehlungen separat
+
+Wenn du **inhaltliche** Empfehlungen ("wechsle auf Telmed-Modell, sparst CHF 300/Jahr") willst, ist das ein eigenes Feature unter `/app/optimieren` — würde ich nach diesen drei Phasen angehen, weil es KI-Logik + Schweizer Krankenkassen-Daten braucht.
+
+---
+
+## Technische Hinweise
+
+- **Eigener API-Key (OpenAI/Anthropic)**: Für Phase 1-3 nicht zwingend nötig. KI brauchen wir erst bei der echten Versicherungs-Optimierung (Phase 4+). Wenn du den Key trotzdem jetzt hinterlegen willst, machen wir das via Secret-Tool.
+- **SEO**: Jede neue Marketing-Route bekommt eigene `head()`-Metadaten (title, description, og:image).
+- **Mobile-First**: Alle neuen Sektionen werden direkt mobil-tauglich gebaut.
+
+---
+
+## Empfehlung: zuerst Phase 1
+
+Sie liefert den größten sofort sichtbaren Wert (du kannst die Seite teilen / Investoren zeigen) und ist unabhängig von DB-Änderungen. Phase 2 + 3 brauchen Migrationen und werden sauberer, wenn die Marketing-Sprache (Tonalität, Versprechen) erstmal steht.
