@@ -490,6 +490,15 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+function EmptyPreview({ text }: { text: string }) {
+  return (
+    <div className="h-full flex flex-col items-center justify-center text-center p-8 text-foreground-secondary">
+      <FileWarning className="w-10 h-10 mb-3 opacity-50" />
+      <p className="text-sm max-w-xs">{text}</p>
+    </div>
+  );
+}
+
 function Field({ label, lowConf, children }: { label: string; lowConf?: boolean; children: ReactNode }) {
   return (
     <div>
