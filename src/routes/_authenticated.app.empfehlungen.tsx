@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/app/app/empfehlungen")({ component: Empfehlungen });
+export const Route = createFileRoute("/_authenticated/app/empfehlungen")({ component: Empfehlungen });
 
 function Empfehlungen() {
   return (

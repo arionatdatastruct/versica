@@ -32,7 +32,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { deletePolicy } from "@/lib/policy-actions";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/app/app/policen")({
+export const Route = createFileRoute("/_authenticated/app/policen")({
   component: PolicenPage,
 });
 

@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/app/app/kuendigung")({ component: Kuendigung });
+export const Route = createFileRoute("/_authenticated/app/kuendigung")({ component: Kuendigung });
 
 function Kuendigung() {
   return (

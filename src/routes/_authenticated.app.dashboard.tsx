@@ -11,7 +11,7 @@ import { deletePolicy } from "@/lib/policy-actions";
 import { DeleteButton } from "./_authenticated.policen";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/app/app/dashboard")({ component: DashboardPage });
+export const Route = createFileRoute("/_authenticated/app/dashboard")({ component: DashboardPage });
 
 type PolicyRow = { id: string; insurer: string | null; model: string | null; monthly_premium: number | null; total_monthly_premium: number | null; kvg_monthly_premium: number | null; member_id: string | null; ocr_status: string; file_path: string | null };
 type MemberRow = { id: string; first_name: string; last_name: string | null; is_self: boolean };
