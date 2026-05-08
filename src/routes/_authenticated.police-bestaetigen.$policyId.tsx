@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, AlertTriangle, CheckCircle2, Plus, Trash2, Copy as CopyIcon } from "lucide-react";
+import { Loader2, AlertTriangle, CheckCircle2, Plus, Trash2, Copy as CopyIcon, ExternalLink, FileWarning } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,6 +41,8 @@ function PoliceBestaetigen() {
   const [members, setMembers] = useState<Member[]>([]);
   const [duplicates, setDuplicates] = useState<Array<{ id: string; insurer: string | null; policy_number: string | null; valid_from: string | null; confirmed_at: string | null }>>([]);
   const [discarding, setDiscarding] = useState(false);
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
 
   // Police-Info
   const [policyType, setPolicyType] = useState<string>("");
@@ -84,6 +86,8 @@ function PoliceBestaetigen() {
 
       if (p) {
         setPolicy(p);
+        setSignedUrl(null);
+        setPreviewError(null);
         setPolicyType(p.policy_type ?? "");
         setInsurer(p.insurer ?? "");
         setPolicyNumber(p.policy_number ?? "");
@@ -95,6 +99,14 @@ function PoliceBestaetigen() {
         setKvgPremium(p.kvg_monthly_premium != null ? String(p.kvg_monthly_premium) : (p.monthly_premium != null ? String(p.monthly_premium) : ""));
         setVvgProducts(Array.isArray(p.vvg_products) ? (p.vvg_products as VVGProduct[]) : []);
         if (p.member_id) setMemberId(p.member_id);
+        if (p.file_path) {
+          const { data: urlData, error: urlErr } = await supabase.storage
+            .from("policy-uploads")
+            .createSignedUrl(p.file_path, 3600);
+          if (cancelled) return;
+          if (urlErr) setPreviewError("Vorschau-URL konnte nicht erstellt werden.");
+          else setSignedUrl(urlData?.signedUrl ?? null);
+        }
       }
       if (ms) {
         const mapped: Member[] = ms.map((m: any) => ({
@@ -240,11 +252,53 @@ function PoliceBestaetigen() {
 
   const failed = policy.ocr_status === "failed";
   const completed = policy.ocr_status === "completed";
+  const isPdf =
+    (policy.file_mime ?? "").includes("pdf") ||
+    (policy.file_path ?? "").toLowerCase().endsWith(".pdf");
+  const isImage = (policy.file_mime ?? "").startsWith("image/");
+  const isHeic =
+    (policy.file_mime ?? "").includes("heic") ||
+    (policy.file_mime ?? "").includes("heif");
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto max-w-2xl py-12 lg:py-16 px-4">
+      <main className="container mx-auto py-8 lg:py-10 px-4">
+        <div className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)] gap-6 items-start">
+          <aside className="card-soft overflow-hidden lg:sticky lg:top-6 h-[58vh] lg:h-[calc(100vh-7rem)]">
+            <div className="h-14 px-4 border-b border-border flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold truncate">Dokument-Vorschau</p>
+              {signedUrl && (
+                <Button asChild variant="outline" size="sm" className="rounded-full shrink-0">
+                  <a href={signedUrl} target="_blank" rel="noreferrer">
+                    <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> PDF öffnen
+                  </a>
+                </Button>
+              )}
+            </div>
+            <div className="h-[calc(100%-3.5rem)]">
+              {!policy.file_path ? (
+                <EmptyPreview text="Keine Originaldatei hinterlegt." />
+              ) : previewError ? (
+                <EmptyPreview text={previewError} />
+              ) : !signedUrl ? (
+                <div className="h-full flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : isHeic ? (
+                <EmptyPreview text={'HEIC-Vorschau wird vom Browser nicht unterstützt — über „PDF öffnen" herunterladen.'} />
+              ) : isPdf ? (
+                <iframe src={signedUrl} title="Police-Vorschau" className="w-full h-full border-0" />
+              ) : isImage ? (
+                <div className="h-full overflow-auto bg-muted/40 flex items-center justify-center p-2">
+                  <img src={signedUrl} alt="Police-Vorschau" className="max-w-full h-auto rounded-md shadow-sm" />
+                </div>
+              ) : (
+                <EmptyPreview text="Dateiformat kann nicht eingebettet werden." />
+              )}
+            </div>
+          </aside>
+          <section className="min-w-0">
         <div className="flex items-start gap-4 mb-8">
           <VersicaIcon size="lg" />
           <div className="bg-primary-light rounded-3xl rounded-tl-md px-5 py-4 shadow-sm flex-1">
@@ -419,6 +473,8 @@ function PoliceBestaetigen() {
             Speichern & weiter
           </Button>
         </div>
+          </section>
+        </div>
       </main>
       <Footer />
     </div>
@@ -430,6 +486,15 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
     <div className="card-soft p-6 space-y-5 mb-6">
       <h2 className="text-lg font-semibold">{title}</h2>
       {children}
+    </div>
+  );
+}
+
+function EmptyPreview({ text }: { text: string }) {
+  return (
+    <div className="h-full flex flex-col items-center justify-center text-center p-8 text-foreground-secondary">
+      <FileWarning className="w-10 h-10 mb-3 opacity-50" />
+      <p className="text-sm max-w-xs">{text}</p>
     </div>
   );
 }

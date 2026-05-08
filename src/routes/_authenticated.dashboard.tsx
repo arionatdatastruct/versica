@@ -162,7 +162,7 @@ function DashboardPage() {
                               <div className="flex items-center gap-2 shrink-0">
                                 <p className="font-semibold text-sm">{premium != null ? `CHF ${premium.toFixed(2)}` : "—"}</p>
                                 <Button asChild variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0" title="Bearbeiten">
-                                  <Link to="/police-bestaetigen/$policyId" params={{ policyId: p.id }}>
+                                  <Link to="/policen/$policyId" params={{ policyId: p.id }}>
                                     <Pencil className="w-3.5 h-3.5" />
                                   </Link>
                                 </Button>
