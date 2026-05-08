@@ -152,9 +152,13 @@ function DashboardPage() {
                           const premium = p.total_monthly_premium ?? p.monthly_premium ?? p.kvg_monthly_premium;
                           return (
                             <div key={p.id} className="flex items-center justify-between gap-2 py-1">
-                              <span className="inline-block bg-primary-light text-primary-dark px-3 py-1 rounded-full text-xs font-medium truncate">
+                              <Link
+                                to="/policen/$policyId"
+                                params={{ policyId: p.id }}
+                                className="inline-block bg-primary-light text-primary-dark px-3 py-1 rounded-full text-xs font-medium truncate hover:bg-primary hover:text-primary-foreground transition-colors"
+                              >
                                 {p.insurer ?? "?"} · {p.model ?? "—"}
-                              </span>
+                              </Link>
                               <div className="flex items-center gap-2 shrink-0">
                                 <p className="font-semibold text-sm">{premium != null ? `CHF ${premium.toFixed(2)}` : "—"}</p>
                                 <Button asChild variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0" title="Bearbeiten">
