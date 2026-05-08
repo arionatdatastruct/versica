@@ -4,12 +4,18 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
-const navItems = [
-  { label: "Dashboard", to: "/app/dashboard", authOnly: true },
-  { label: "Policen", to: "/app/policen", authOnly: true },
-  { label: "Familie", to: "/app/familie", authOnly: true },
-  { label: "Beratung", to: "/beratung", authOnly: false },
-  { label: "Vergleich", to: "/vergleich", authOnly: false },
+const platformNav = [
+  { label: "Dashboard", to: "/app/dashboard" },
+  { label: "Policen", to: "/app/policen" },
+  { label: "Familie", to: "/app/familie" },
+  { label: "Empfehlungen", to: "/app/empfehlungen" },
+] as const;
+
+const marketingNav = [
+  { label: "Beratung", to: "/beratung" },
+  { label: "Vergleich", to: "/vergleich" },
+  { label: "Preise", to: "/preise" },
+  { label: "Über uns", to: "/ueber-uns" },
 ] as const;
 
 const langs = ["DE", "FR", "IT", "EN"];
