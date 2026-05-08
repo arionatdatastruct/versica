@@ -17,7 +17,7 @@ export type MemberRecord = {
   first_name: string;
   last_name: string | null;
   birth_date: string | null;
-  gender: "female" | "male" | "other" | null;
+  gender: string | null;
   postal_code: string | null;
   canton: string | null;
   notes: string | null;
@@ -60,7 +60,7 @@ export function MemberFormDialog({ open, onOpenChange, householdId, member, hasS
     setFirst(member?.first_name ?? "");
     setLast(member?.last_name ?? "");
     setBirth(member?.birth_date ?? "");
-    setGender(member?.gender ?? "");
+    setGender((member?.gender as "female" | "male" | "other" | null) ?? "");
     setPlz(member?.postal_code ?? "");
     setCanton(member?.canton ?? "");
     setNotes(member?.notes ?? "");
@@ -90,15 +90,14 @@ export function MemberFormDialog({ open, onOpenChange, householdId, member, hasS
       is_self: parsed.data.is_self,
     };
     setSaving(true);
-    const tbl = supabase.from("household_members") as any;
     const q = member
-      ? tbl.update(payload).eq("id", member.id).select("*").single()
-      : tbl.insert(payload).select("*").single();
+      ? supabase.from("household_members").update(payload).eq("id", member.id).select("*").single()
+      : supabase.from("household_members").insert(payload).select("*").single();
     const { data, error } = await q;
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success(member ? "Mitglied aktualisiert." : "Mitglied hinzugefügt.");
-    onSaved(data as unknown as MemberRecord);
+    onSaved(data as MemberRecord);
     onOpenChange(false);
   };
 

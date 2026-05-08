@@ -32,7 +32,7 @@ function FamiliePage() {
       supabase.from("household_members").select("*").eq("household_id", hh.id).order("is_self", { ascending: false }).order("created_at"),
       supabase.from("policies").select("member_id").eq("owner_id", user.id),
     ]);
-    setMembers((ms ?? []) as unknown as MemberRecord[]);
+    setMembers((ms ?? []) as MemberRecord[]);
     const counts: Record<string, number> = {};
     for (const p of ps ?? []) if (p.member_id) counts[p.member_id] = (counts[p.member_id] ?? 0) + 1;
     setPolicyCounts(counts);
