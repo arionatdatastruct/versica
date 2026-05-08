@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { VersicaIcon } from "@/components/VersicaIcon";
@@ -26,25 +26,6 @@ function PoliceUpload() {
   const navigate = useNavigate();
   const [uploading, setUploading] = useState(false);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
-  const policyIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!policyIdRef.current) return;
-    const id = policyIdRef.current;
-    const channel = supabase
-      .channel(`policy-${id}`)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "policies", filter: `id=eq.${id}` }, (payload) => {
-        const row: any = payload.new;
-        if (row.ocr_status === "done") {
-          navigate({ to: "/police-bestaetigen/$policyId", params: { policyId: row.id } });
-        } else if (row.ocr_status === "failed") {
-          toast.error(row.ocr_error || "Auslesen fehlgeschlagen");
-          navigate({ to: "/police-bestaetigen/$policyId", params: { policyId: row.id } });
-        }
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [statusMsg, navigate]);
 
   const handleFile = async (file: File) => {
     if (!user) return toast.error("Bitte einloggen.");
@@ -52,15 +33,14 @@ function PoliceUpload() {
     if (file.size > MAX_BYTES) return toast.error("Maximal 10 MB.");
 
     setUploading(true);
-    setStatusMsg("Lade deine Police hoch …");
+    setStatusMsg("Lade Police hoch …");
 
     try {
       const { data: inserted, error: insErr } = await ((supabase as any).from("policies") as any)
-        .insert({ owner_id: user.id, ocr_status: "pending", file_mime: file.type })
+        .insert({ owner_id: user.id, ocr_status: "manual", file_mime: file.type })
         .select("id").single();
       if (insErr || !inserted) throw insErr ?? new Error("Insert failed");
       const policyId = inserted.id;
-      policyIdRef.current = policyId;
 
       const safeName = file.name.replace(/[^\w.\-]+/g, "_");
       const path = `${user.id}/${policyId}/${safeName}`;
@@ -68,17 +48,12 @@ function PoliceUpload() {
         .upload(path, file, { contentType: file.type, upsert: false });
       if (upErr) throw upErr;
 
-      const { error: updErr } = await ((supabase as any).from("policies") as any).update({ file_path: path }).eq("id", policyId);
+      const { error: updErr } = await ((supabase as any).from("policies") as any)
+        .update({ file_path: path }).eq("id", policyId);
       if (updErr) throw updErr;
 
-      setStatusMsg("Versica liest deine Police aus … (ca. 20–40 Sek.)");
-
-      const { error: fnErr } = await supabase.functions.invoke("extract-policy", { body: { policy_id: policyId } });
-      if (fnErr) {
-        console.error(fnErr);
-        toast.error("OCR konnte nicht gestartet werden – du kannst die Felder manuell ausfüllen.");
-        navigate({ to: "/police-bestaetigen/$policyId", params: { policyId } });
-      }
+      // Phase 1: keine OCR — direkt zur manuellen Bestätigung
+      navigate({ to: "/police-bestaetigen/$policyId", params: { policyId } });
     } catch (e: any) {
       console.error(e);
       toast.error(e?.message ?? "Upload fehlgeschlagen");
