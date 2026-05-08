@@ -22,7 +22,9 @@ import { Route as AuthenticatedFamilieRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedEmpfehlungenRouteImport } from './routes/_authenticated.empfehlungen'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedCheckRouteImport } from './routes/_authenticated.check'
+import { Route as AuthenticatedPolicenPolicyIdRouteImport } from './routes/_authenticated.policen.$policyId'
 import { Route as AuthenticatedPoliceBestaetigenPolicyIdRouteImport } from './routes/_authenticated.police-bestaetigen.$policyId'
+import { Route as ApiPublicHooksCleanupOrphanUploadsRouteImport } from './routes/api/public/hooks/cleanup-orphan-uploads'
 
 const VergleichRoute = VergleichRouteImport.update({
   id: '/vergleich',
@@ -91,11 +93,23 @@ const AuthenticatedCheckRoute = AuthenticatedCheckRouteImport.update({
   path: '/check',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPolicenPolicyIdRoute =
+  AuthenticatedPolicenPolicyIdRouteImport.update({
+    id: '/$policyId',
+    path: '/$policyId',
+    getParentRoute: () => AuthenticatedPolicenRoute,
+  } as any)
 const AuthenticatedPoliceBestaetigenPolicyIdRoute =
   AuthenticatedPoliceBestaetigenPolicyIdRouteImport.update({
     id: '/police-bestaetigen/$policyId',
     path: '/police-bestaetigen/$policyId',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicHooksCleanupOrphanUploadsRoute =
+  ApiPublicHooksCleanupOrphanUploadsRouteImport.update({
+    id: '/api/public/hooks/cleanup-orphan-uploads',
+    path: '/api/public/hooks/cleanup-orphan-uploads',
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -110,8 +124,10 @@ export interface FileRoutesByFullPath {
   '/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/kuendigung': typeof AuthenticatedKuendigungRoute
   '/police-upload': typeof AuthenticatedPoliceUploadRoute
-  '/policen': typeof AuthenticatedPolicenRoute
+  '/policen': typeof AuthenticatedPolicenRouteWithChildren
   '/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
+  '/policen/$policyId': typeof AuthenticatedPolicenPolicyIdRoute
+  '/api/public/hooks/cleanup-orphan-uploads': typeof ApiPublicHooksCleanupOrphanUploadsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -125,8 +141,10 @@ export interface FileRoutesByTo {
   '/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/kuendigung': typeof AuthenticatedKuendigungRoute
   '/police-upload': typeof AuthenticatedPoliceUploadRoute
-  '/policen': typeof AuthenticatedPolicenRoute
+  '/policen': typeof AuthenticatedPolicenRouteWithChildren
   '/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
+  '/policen/$policyId': typeof AuthenticatedPolicenPolicyIdRoute
+  '/api/public/hooks/cleanup-orphan-uploads': typeof ApiPublicHooksCleanupOrphanUploadsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -142,8 +160,10 @@ export interface FileRoutesById {
   '/_authenticated/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/_authenticated/kuendigung': typeof AuthenticatedKuendigungRoute
   '/_authenticated/police-upload': typeof AuthenticatedPoliceUploadRoute
-  '/_authenticated/policen': typeof AuthenticatedPolicenRoute
+  '/_authenticated/policen': typeof AuthenticatedPolicenRouteWithChildren
   '/_authenticated/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
+  '/_authenticated/policen/$policyId': typeof AuthenticatedPolicenPolicyIdRoute
+  '/api/public/hooks/cleanup-orphan-uploads': typeof ApiPublicHooksCleanupOrphanUploadsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +181,8 @@ export interface FileRouteTypes {
     | '/police-upload'
     | '/policen'
     | '/police-bestaetigen/$policyId'
+    | '/policen/$policyId'
+    | '/api/public/hooks/cleanup-orphan-uploads'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -176,6 +198,8 @@ export interface FileRouteTypes {
     | '/police-upload'
     | '/policen'
     | '/police-bestaetigen/$policyId'
+    | '/policen/$policyId'
+    | '/api/public/hooks/cleanup-orphan-uploads'
   id:
     | '__root__'
     | '/'
@@ -192,6 +216,8 @@ export interface FileRouteTypes {
     | '/_authenticated/police-upload'
     | '/_authenticated/policen'
     | '/_authenticated/police-bestaetigen/$policyId'
+    | '/_authenticated/policen/$policyId'
+    | '/api/public/hooks/cleanup-orphan-uploads'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -200,6 +226,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BeratungRoute: typeof BeratungRoute
   VergleichRoute: typeof VergleichRoute
+  ApiPublicHooksCleanupOrphanUploadsRoute: typeof ApiPublicHooksCleanupOrphanUploadsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -295,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/policen/$policyId': {
+      id: '/_authenticated/policen/$policyId'
+      path: '/$policyId'
+      fullPath: '/policen/$policyId'
+      preLoaderRoute: typeof AuthenticatedPolicenPolicyIdRouteImport
+      parentRoute: typeof AuthenticatedPolicenRoute
+    }
     '/_authenticated/police-bestaetigen/$policyId': {
       id: '/_authenticated/police-bestaetigen/$policyId'
       path: '/police-bestaetigen/$policyId'
@@ -302,8 +336,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPoliceBestaetigenPolicyIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/hooks/cleanup-orphan-uploads': {
+      id: '/api/public/hooks/cleanup-orphan-uploads'
+      path: '/api/public/hooks/cleanup-orphan-uploads'
+      fullPath: '/api/public/hooks/cleanup-orphan-uploads'
+      preLoaderRoute: typeof ApiPublicHooksCleanupOrphanUploadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface AuthenticatedPolicenRouteChildren {
+  AuthenticatedPolicenPolicyIdRoute: typeof AuthenticatedPolicenPolicyIdRoute
+}
+
+const AuthenticatedPolicenRouteChildren: AuthenticatedPolicenRouteChildren = {
+  AuthenticatedPolicenPolicyIdRoute: AuthenticatedPolicenPolicyIdRoute,
+}
+
+const AuthenticatedPolicenRouteWithChildren =
+  AuthenticatedPolicenRoute._addFileChildren(AuthenticatedPolicenRouteChildren)
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCheckRoute: typeof AuthenticatedCheckRoute
@@ -313,7 +365,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFamilieOptimierenRoute: typeof AuthenticatedFamilieOptimierenRoute
   AuthenticatedKuendigungRoute: typeof AuthenticatedKuendigungRoute
   AuthenticatedPoliceUploadRoute: typeof AuthenticatedPoliceUploadRoute
-  AuthenticatedPolicenRoute: typeof AuthenticatedPolicenRoute
+  AuthenticatedPolicenRoute: typeof AuthenticatedPolicenRouteWithChildren
   AuthenticatedPoliceBestaetigenPolicyIdRoute: typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
 }
 
@@ -325,7 +377,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFamilieOptimierenRoute: AuthenticatedFamilieOptimierenRoute,
   AuthenticatedKuendigungRoute: AuthenticatedKuendigungRoute,
   AuthenticatedPoliceUploadRoute: AuthenticatedPoliceUploadRoute,
-  AuthenticatedPolicenRoute: AuthenticatedPolicenRoute,
+  AuthenticatedPolicenRoute: AuthenticatedPolicenRouteWithChildren,
   AuthenticatedPoliceBestaetigenPolicyIdRoute:
     AuthenticatedPoliceBestaetigenPolicyIdRoute,
 }
@@ -339,6 +391,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BeratungRoute: BeratungRoute,
   VergleichRoute: VergleichRoute,
+  ApiPublicHooksCleanupOrphanUploadsRoute:
+    ApiPublicHooksCleanupOrphanUploadsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
