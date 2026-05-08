@@ -1,3 +1,4 @@
+import type React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Header } from "@/components/Header";
@@ -170,7 +171,7 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
     medium: "bg-warning/15 text-warning",
     info: "bg-primary-light text-primary-dark",
   };
-  const sevIcon: Record<Severity, JSX.Element> = {
+  const sevIcon: Record<Severity, React.ReactNode> = {
     high: <TrendingDown className="w-5 h-5" />,
     medium: <AlertCircle className="w-5 h-5" />,
     info: <Sparkles className="w-5 h-5" />,
@@ -214,7 +215,7 @@ function EmptyState({
   description,
   cta,
 }: {
-  icon: JSX.Element;
+  icon: React.ReactNode;
   title: string;
   description: string;
   cta: { label: string; to: string };
