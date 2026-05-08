@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
@@ -10,10 +10,20 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthGuard() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/auth", replace: true });
-  }, [user, loading, navigate]);
+    if (loading) return;
+    if (!user) {
+      navigate({ to: "/auth", replace: true });
+      return;
+    }
+    const onboardedAt = (user.user_metadata as Record<string, unknown> | null)?.onboarded_at;
+    const isOnWelcome = location.pathname === "/app/willkommen";
+    if (!onboardedAt && !isOnWelcome) {
+      navigate({ to: "/app/willkommen", replace: true });
+    }
+  }, [user, loading, navigate, location.pathname]);
 
   if (loading || !user) {
     return (
@@ -24,4 +34,3 @@ function AuthGuard() {
   }
   return <Outlet />;
 }
-

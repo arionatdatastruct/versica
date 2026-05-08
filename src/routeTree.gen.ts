@@ -20,6 +20,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated.route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
+import { Route as AuthenticatedAppWillkommenRouteImport } from './routes/_authenticated.app.willkommen'
 import { Route as AuthenticatedAppPolicenRouteImport } from './routes/_authenticated.app.policen'
 import { Route as AuthenticatedAppPoliceUploadRouteImport } from './routes/_authenticated.app.police-upload'
 import { Route as AuthenticatedAppKuendigungRouteImport } from './routes/_authenticated.app.kuendigung'
@@ -86,6 +87,12 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/app/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAppWillkommenRoute =
+  AuthenticatedAppWillkommenRouteImport.update({
+    id: '/app/willkommen',
+    path: '/app/willkommen',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAppPolicenRoute = AuthenticatedAppPolicenRouteImport.update({
   id: '/app/policen',
   path: '/app/policen',
@@ -168,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/app/kuendigung': typeof AuthenticatedAppKuendigungRoute
   '/app/police-upload': typeof AuthenticatedAppPoliceUploadRoute
   '/app/policen': typeof AuthenticatedAppPolicenRoute
+  '/app/willkommen': typeof AuthenticatedAppWillkommenRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/police-bestaetigen/$policyId': typeof AuthenticatedAppPoliceBestaetigenPolicyIdRoute
   '/app/policen/$policyId': typeof AuthenticatedAppPolicenPolicyIdRoute
@@ -191,6 +199,7 @@ export interface FileRoutesByTo {
   '/app/kuendigung': typeof AuthenticatedAppKuendigungRoute
   '/app/police-upload': typeof AuthenticatedAppPoliceUploadRoute
   '/app/policen': typeof AuthenticatedAppPolicenRoute
+  '/app/willkommen': typeof AuthenticatedAppWillkommenRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/police-bestaetigen/$policyId': typeof AuthenticatedAppPoliceBestaetigenPolicyIdRoute
   '/app/policen/$policyId': typeof AuthenticatedAppPolicenPolicyIdRoute
@@ -216,6 +225,7 @@ export interface FileRoutesById {
   '/_authenticated/app/kuendigung': typeof AuthenticatedAppKuendigungRoute
   '/_authenticated/app/police-upload': typeof AuthenticatedAppPoliceUploadRoute
   '/_authenticated/app/policen': typeof AuthenticatedAppPolicenRoute
+  '/_authenticated/app/willkommen': typeof AuthenticatedAppWillkommenRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/police-bestaetigen/$policyId': typeof AuthenticatedAppPoliceBestaetigenPolicyIdRoute
   '/_authenticated/app/policen_/$policyId': typeof AuthenticatedAppPolicenPolicyIdRoute
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/app/kuendigung'
     | '/app/police-upload'
     | '/app/policen'
+    | '/app/willkommen'
     | '/app/'
     | '/app/police-bestaetigen/$policyId'
     | '/app/policen/$policyId'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/app/kuendigung'
     | '/app/police-upload'
     | '/app/policen'
+    | '/app/willkommen'
     | '/app'
     | '/app/police-bestaetigen/$policyId'
     | '/app/policen/$policyId'
@@ -288,6 +300,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/kuendigung'
     | '/_authenticated/app/police-upload'
     | '/_authenticated/app/policen'
+    | '/_authenticated/app/willkommen'
     | '/_authenticated/app/'
     | '/_authenticated/app/police-bestaetigen/$policyId'
     | '/_authenticated/app/policen_/$policyId'
@@ -387,6 +400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/app/willkommen': {
+      id: '/_authenticated/app/willkommen'
+      path: '/app/willkommen'
+      fullPath: '/app/willkommen'
+      preLoaderRoute: typeof AuthenticatedAppWillkommenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/app/policen': {
       id: '/_authenticated/app/policen'
       path: '/app/policen'
@@ -476,6 +496,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppKuendigungRoute: typeof AuthenticatedAppKuendigungRoute
   AuthenticatedAppPoliceUploadRoute: typeof AuthenticatedAppPoliceUploadRoute
   AuthenticatedAppPolicenRoute: typeof AuthenticatedAppPolicenRoute
+  AuthenticatedAppWillkommenRoute: typeof AuthenticatedAppWillkommenRoute
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppPoliceBestaetigenPolicyIdRoute: typeof AuthenticatedAppPoliceBestaetigenPolicyIdRoute
   AuthenticatedAppPolicenPolicyIdRoute: typeof AuthenticatedAppPolicenPolicyIdRoute
@@ -491,6 +512,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppKuendigungRoute: AuthenticatedAppKuendigungRoute,
   AuthenticatedAppPoliceUploadRoute: AuthenticatedAppPoliceUploadRoute,
   AuthenticatedAppPolicenRoute: AuthenticatedAppPolicenRoute,
+  AuthenticatedAppWillkommenRoute: AuthenticatedAppWillkommenRoute,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppPoliceBestaetigenPolicyIdRoute:
     AuthenticatedAppPoliceBestaetigenPolicyIdRoute,
