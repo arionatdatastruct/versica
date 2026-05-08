@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/app/familie-optimieren")({ component: FamilieOptimieren });
+export const Route = createFileRoute("/_authenticated/app/app/familie-optimieren")({ component: FamilieOptimieren });
 
 function FamilieOptimieren() {
   return (

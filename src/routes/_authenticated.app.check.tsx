@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/app/check")({ component: Check });
+export const Route = createFileRoute("/_authenticated/app/app/check")({ component: Check });
 
 function Check() {
   return (

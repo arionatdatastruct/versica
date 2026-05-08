@@ -15,7 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { deletePolicy } from "@/lib/policy-actions";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/police-bestaetigen/$policyId")({
+export const Route = createFileRoute("/_authenticated/app/police-bestaetigen/$policyId")({
   component: PoliceBestaetigen,
 });
 
