@@ -77,9 +77,14 @@ function DashboardPage() {
                 : `Versica hat ${policies.length} Police(n) analysiert.`}
             </p>
           </div>
-          <Button asChild className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-6">
-            <Link to="/police-upload"><Upload className="mr-2 h-4 w-4" /> Police hochladen</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" className="rounded-full">
+              <Link to="/policen"><ListChecks className="mr-2 h-4 w-4" /> Alle Policen</Link>
+            </Button>
+            <Button asChild className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-6">
+              <Link to="/police-upload"><Upload className="mr-2 h-4 w-4" /> Police hochladen</Link>
+            </Button>
+          </div>
         </div>
 
         <section className="bg-primary-light rounded-3xl p-8 lg:p-10 grid lg:grid-cols-[1fr_auto] gap-6 items-center relative overflow-hidden">
