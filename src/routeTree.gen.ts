@@ -16,6 +16,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated.
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedPoliceUploadRouteImport } from './routes/_authenticated.police-upload'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as AuthenticatedPoliceBestaetigenPolicyIdRouteImport } from './routes/_authenticated.police-bestaetigen.$policyId'
 
 const VergleichRoute = VergleichRouteImport.update({
   id: '/vergleich',
@@ -52,6 +53,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPoliceBestaetigenPolicyIdRoute =
+  AuthenticatedPoliceBestaetigenPolicyIdRouteImport.update({
+    id: '/police-bestaetigen/$policyId',
+    path: '/police-bestaetigen/$policyId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -60,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/vergleich': typeof VergleichRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/police-upload': typeof AuthenticatedPoliceUploadRoute
+  '/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,6 +76,7 @@ export interface FileRoutesByTo {
   '/vergleich': typeof VergleichRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/police-upload': typeof AuthenticatedPoliceUploadRoute
+  '/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,6 +87,7 @@ export interface FileRoutesById {
   '/vergleich': typeof VergleichRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/police-upload': typeof AuthenticatedPoliceUploadRoute
+  '/_authenticated/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/vergleich'
     | '/dashboard'
     | '/police-upload'
+    | '/police-bestaetigen/$policyId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/vergleich'
     | '/dashboard'
     | '/police-upload'
+    | '/police-bestaetigen/$policyId'
   id:
     | '__root__'
     | '/'
@@ -105,6 +117,7 @@ export interface FileRouteTypes {
     | '/vergleich'
     | '/_authenticated/dashboard'
     | '/_authenticated/police-upload'
+    | '/_authenticated/police-bestaetigen/$policyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -166,17 +179,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/police-bestaetigen/$policyId': {
+      id: '/_authenticated/police-bestaetigen/$policyId'
+      path: '/police-bestaetigen/$policyId'
+      fullPath: '/police-bestaetigen/$policyId'
+      preLoaderRoute: typeof AuthenticatedPoliceBestaetigenPolicyIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedPoliceUploadRoute: typeof AuthenticatedPoliceUploadRoute
+  AuthenticatedPoliceBestaetigenPolicyIdRoute: typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedPoliceUploadRoute: AuthenticatedPoliceUploadRoute,
+  AuthenticatedPoliceBestaetigenPolicyIdRoute:
+    AuthenticatedPoliceBestaetigenPolicyIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -192,3 +215,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
