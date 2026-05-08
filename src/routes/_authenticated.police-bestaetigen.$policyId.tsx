@@ -119,6 +119,56 @@ function PoliceBestaetigen() {
     return () => { cancelled = true; };
   }, [policyId, user]);
 
+  // Duplikat-Erkennung: andere Policen desselben Owners mit gleichem Versicherer + Person + Gültigkeit
+  // ODER identischer Policennummer.
+  useEffect(() => {
+    if (!user || !policy) return;
+    let cancelled = false;
+    const run = async () => {
+      const orParts: string[] = [];
+      if (policy.policy_number) {
+        orParts.push(`policy_number.eq.${policy.policy_number}`);
+      }
+      const insurer = (policy.insurer ?? "").trim();
+      const fn = (policy.insured_first_name ?? "").trim();
+      const ln = (policy.insured_last_name ?? "").trim();
+      const vf = policy.valid_from;
+      // Wir filtern Versicherer/Person/Datum clientseitig — Supabase OR mit AND-Gruppen ist unhandlich.
+      const { data } = await supabase
+        .from("policies")
+        .select("id, insurer, policy_number, insured_first_name, insured_last_name, valid_from, confirmed_at")
+        .eq("owner_id", user.id)
+        .neq("id", policy.id)
+        .limit(50);
+      if (cancelled || !data) return;
+      const matches = data.filter((d: any) => {
+        if (policy.policy_number && d.policy_number === policy.policy_number) return true;
+        if (!insurer || !vf) return false;
+        const sameInsurer = (d.insurer ?? "").trim().toLowerCase() === insurer.toLowerCase();
+        const sameFn = (d.insured_first_name ?? "").trim().toLowerCase() === fn.toLowerCase();
+        const sameLn = (d.insured_last_name ?? "").trim().toLowerCase() === ln.toLowerCase();
+        const sameDate = d.valid_from === vf;
+        return sameInsurer && sameDate && (sameFn || sameLn);
+      });
+      setDuplicates(matches);
+    };
+    void run();
+    return () => { cancelled = true; };
+  }, [user, policy]);
+
+  const discardCurrent = async () => {
+    if (!policy) return;
+    setDiscarding(true);
+    try {
+      await deletePolicy(policy.id, policy.file_path);
+      toast.success("Police verworfen");
+      navigate({ to: "/policen" });
+    } catch (e: any) {
+      toast.error("Löschen fehlgeschlagen: " + (e?.message ?? e));
+      setDiscarding(false);
+    }
+  };
+
   const conf = (key: string): number | null => {
     const c = policy?.ocr_confidence?.[key];
     return typeof c === "number" ? c : null;
