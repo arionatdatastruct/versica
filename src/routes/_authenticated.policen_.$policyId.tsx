@@ -83,10 +83,14 @@ function PolicyDetailPage() {
           .createSignedUrl(data.file_path, 3600);
         if (cancelled) return;
         if (urlErr) {
-          setPreviewError("Vorschau-URL konnte nicht erstellt werden.");
+          console.error("[Preview] signed URL error", urlErr, "path:", data.file_path);
+          setPreviewError(`Vorschau konnte nicht geladen werden: ${urlErr.message}`);
         } else {
+          console.log("[Preview] signed URL ok for", data.file_path, "mime:", data.file_mime);
           setSignedUrl(urlData?.signedUrl ?? null);
         }
+      } else if (data) {
+        console.warn("[Preview] policy has no file_path", data.id);
       }
       setLoading(false);
     })();
