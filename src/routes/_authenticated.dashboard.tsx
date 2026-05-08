@@ -23,10 +23,10 @@ function DashboardPage() {
     if (!user) return;
     (async () => {
       const [{ data: ms }, { data: ps }] = await Promise.all([
-        (supabase.from("household_members") as any)
+        ((supabase as any).from("household_members") as any)
           .select("id, first_name, last_name, is_self, household_id, households!inner(owner_id)")
           .eq("households.owner_id", user.id),
-        (supabase.from("policies") as any)
+        ((supabase as any).from("policies") as any)
           .select("id, insurer, model, monthly_premium, member_id, ocr_status")
           .eq("owner_id", user.id),
       ]);

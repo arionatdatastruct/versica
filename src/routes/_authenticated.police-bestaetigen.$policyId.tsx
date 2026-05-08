@@ -42,8 +42,8 @@ function PoliceBestaetigen() {
     if (!policyId || !user) return;
     (async () => {
       const [{ data: p }, { data: ms }] = await Promise.all([
-        (supabase.from("policies") as any).select("*").eq("id", policyId).single(),
-        (supabase.from("household_members") as any)
+        ((supabase as any).from("policies") as any).select("*").eq("id", policyId).single(),
+        ((supabase as any).from("household_members") as any)
           .select("id, first_name, last_name, is_self, household_id, households!inner(owner_id)")
           .eq("households.owner_id", user.id),
       ]);
@@ -79,7 +79,7 @@ function PoliceBestaetigen() {
     if (!memberId) return toast.error("Bitte wähle eine Person aus.");
     setSaving(true);
     const supp = supplementary.split(",").map((s) => s.trim()).filter(Boolean);
-    const { error } = await (supabase.from("policies") as any).update({
+    const { error } = await ((supabase as any).from("policies") as any).update({
       insurer: insurer || null,
       model: model || null,
       franchise: franchise ? parseFloat(franchise) : null,
