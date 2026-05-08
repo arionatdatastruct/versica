@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +25,7 @@ import {
   Clock,
   Copy as CopyIcon,
   FileText,
+  CheckCircle2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -59,6 +61,8 @@ function PolicenPage() {
   const [policies, setPolicies] = useState<PolicyRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const load = async () => {
@@ -120,11 +124,44 @@ function PolicenPage() {
     }
   }, [policies, filter, duplicateIds]);
 
+  // Reset selection when filter changes / data reloads
+  useEffect(() => {
+    setSelected((prev) => {
+      const next = new Set<string>();
+      const visibleIds = new Set(visible.map((p) => p.id));
+      prev.forEach((id) => {
+        if (visibleIds.has(id)) next.add(id);
+      });
+      return next;
+    });
+  }, [visible]);
+
   const counts = {
     all: policies.length,
     unconfirmed: policies.filter((p) => !p.confirmed_at).length,
     failed: policies.filter((p) => p.ocr_status === "failed").length,
     duplicates: duplicateIds.size,
+  };
+
+  const toggleOne = (id: string, checked: boolean) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+  const allVisibleSelected =
+    visible.length > 0 && visible.every((p) => selected.has(p.id));
+  const toggleAll = (checked: boolean) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      visible.forEach((p) => {
+        if (checked) next.add(p.id);
+        else next.delete(p.id);
+      });
+      return next;
+    });
   };
 
   const handleDelete = async (p: PolicyRow) => {
@@ -138,6 +175,55 @@ function PolicenPage() {
     } finally {
       setDeleting(null);
     }
+  };
+
+  const bulkDelete = async () => {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    setBulkBusy(true);
+    const targets = policies.filter((p) => ids.includes(p.id));
+    let ok = 0;
+    let fail = 0;
+    for (const p of targets) {
+      try {
+        await deletePolicy(p.id, p.file_path);
+        ok++;
+      } catch {
+        fail++;
+      }
+    }
+    setPolicies((prev) => prev.filter((p) => !ids.includes(p.id)));
+    setSelected(new Set());
+    setBulkBusy(false);
+    if (fail === 0) toast.success(`${ok} Policen gelöscht`);
+    else toast.error(`${ok} gelöscht, ${fail} fehlgeschlagen`);
+  };
+
+  const bulkConfirm = async () => {
+    const ids = Array.from(selected).filter((id) => {
+      const p = policies.find((x) => x.id === id);
+      return p && !p.confirmed_at;
+    });
+    if (ids.length === 0) {
+      toast.info("Keine unbestätigten Policen ausgewählt.");
+      return;
+    }
+    setBulkBusy(true);
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from("policies")
+      .update({ confirmed_at: now })
+      .in("id", ids);
+    setBulkBusy(false);
+    if (error) {
+      toast.error("Bestätigen fehlgeschlagen: " + error.message);
+      return;
+    }
+    setPolicies((prev) =>
+      prev.map((p) => (ids.includes(p.id) ? { ...p, confirmed_at: now } : p)),
+    );
+    setSelected(new Set());
+    toast.success(`${ids.length} Policen bestätigt`);
   };
 
   if (loading) {
@@ -197,6 +283,69 @@ function PolicenPage() {
           </FilterChip>
         </div>
 
+        {/* Bulk action bar */}
+        {visible.length > 0 && (
+          <div className="card-soft p-4 flex flex-wrap items-center gap-3 justify-between">
+            <label className="flex items-center gap-3 text-sm font-medium cursor-pointer">
+              <Checkbox
+                checked={allVisibleSelected}
+                onCheckedChange={(v) => toggleAll(!!v)}
+                aria-label="Alle auswählen"
+              />
+              {selected.size > 0
+                ? `${selected.size} ausgewählt`
+                : "Alle in dieser Ansicht auswählen"}
+            </label>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-full"
+                disabled={selected.size === 0 || bulkBusy}
+                onClick={bulkConfirm}
+              >
+                {bulkBusy ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                )}
+                Bestätigen
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/30"
+                    disabled={selected.size === 0 || bulkBusy}
+                  >
+                    <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                    Löschen
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{selected.size} Policen löschen?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Die ausgewählten Policen werden unwiderruflich gelöscht — inklusive
+                      hochgeladener Dateien.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={bulkDelete}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Löschen
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </div>
+        )}
+
         {visible.length === 0 ? (
           <div className="card-soft p-10 text-center text-foreground-secondary">
             <FileText className="w-10 h-10 mx-auto mb-3 opacity-50" />
@@ -211,11 +360,19 @@ function PolicenPage() {
                 .filter(Boolean)
                 .join(" ");
               const isDuplicate = duplicateIds.has(p.id);
+              const isSelected = selected.has(p.id);
               return (
                 <div
                   key={p.id}
-                  className="p-5 grid md:grid-cols-[1fr_auto_auto] gap-4 items-center"
+                  className={`p-5 grid md:grid-cols-[auto_1fr_auto_auto] gap-4 items-center ${
+                    isSelected ? "bg-primary-light/30" : ""
+                  }`}
                 >
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={(v) => toggleOne(p.id, !!v)}
+                    aria-label="Police auswählen"
+                  />
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-semibold truncate">
