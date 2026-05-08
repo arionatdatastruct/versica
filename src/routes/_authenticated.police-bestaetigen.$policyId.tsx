@@ -104,8 +104,16 @@ function PoliceBestaetigen() {
             .from("policy-uploads")
             .createSignedUrl(p.file_path, 3600);
           if (cancelled) return;
-          if (urlErr) setPreviewError("Vorschau-URL konnte nicht erstellt werden.");
-          else setSignedUrl(urlData?.signedUrl ?? null);
+          if (urlErr) {
+            console.error("[Preview] signed URL error", urlErr, "path:", p.file_path);
+            setPreviewError(`Vorschau konnte nicht geladen werden: ${urlErr.message}`);
+          } else {
+            console.log("[Preview] signed URL ok for", p.file_path, "mime:", p.file_mime);
+            setSignedUrl(urlData?.signedUrl ?? null);
+          }
+        } else {
+          console.warn("[Preview] policy has no file_path", p.id);
+          setPreviewError("Keine Originaldatei verknüpft – bitte erneut hochladen.");
         }
       }
       if (ms) {
