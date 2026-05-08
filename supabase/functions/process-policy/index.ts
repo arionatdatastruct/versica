@@ -11,7 +11,7 @@ const corsHeaders = {
 };
 
 const KLIPPA_GENERIC_URL =
-  "https://dochorizon.klippa.com/api/services/document_capturing/v1/financial_full";
+  "https://dochorizon.klippa.com/api/services/document_capturing/v1/generic";
 const KLIPPA_TIMEOUT_MS = 90_000;
 const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const LLM_MODEL = "google/gemini-2.5-flash";
@@ -85,10 +85,14 @@ Deno.serve(async (req) => {
     const timeoutId = setTimeout(() => ctrl.abort(), KLIPPA_TIMEOUT_MS);
     let klippaRes: Response;
     try {
+      const filename = (policy.file_path as string).split("/").pop() || "document.pdf";
+      const contentType = policy.file_mime || "application/pdf";
       klippaRes = await fetch(KLIPPA_GENERIC_URL, {
         method: "POST",
         headers: { "x-api-key": KLIPPA_API_KEY, "Content-Type": "application/json" },
-        body: JSON.stringify({ documents: [{ data: base64 }] }),
+        body: JSON.stringify({
+          documents: [{ content_type: contentType, data: base64, filename }],
+        }),
         signal: ctrl.signal,
       });
     } catch (e: any) {
