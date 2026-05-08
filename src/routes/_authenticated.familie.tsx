@@ -98,7 +98,7 @@ function FamiliePage() {
                     </div>
                     <p className="text-sm text-foreground-secondary">
                       {age != null ? `${age} J.` : "—"}
-                      {m.gender ? ` · ${GENDER_LABEL[m.gender]}` : ""}
+                      {m.gender ? ` · ${GENDER_LABEL[m.gender as keyof typeof GENDER_LABEL] ?? m.gender}` : ""}
                       {m.canton ? ` · ${m.canton}${m.postal_code ? ` ${m.postal_code}` : ""}` : ""}
                       {` · ${polCount} Police${polCount === 1 ? "" : "n"}`}
                     </p>
