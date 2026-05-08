@@ -336,15 +336,16 @@ function buildRecommendations(policies: PolicyRow[], members: MemberRow[]): Reco
       }
     }
 
-    // Rule 4: VVG over CHF 100/Mt — review supplementary
+    // Rule 4: VVG over CHF 100/Mt — review supplementary (no savings estimate;
+    // depends entirely on which benefits the household actually uses)
     const vvg = p.vvg_total_monthly_premium ?? 0;
     if (vvg >= 100) {
       recs.push({
         id: `vvg-${p.id}`,
         title: "Zusatzversicherungen überprüfen",
-        description: `Du zahlst CHF ${vvg.toFixed(0)}/Mt für Zusätze. Prüfe, welche Leistungen du wirklich nutzt.`,
-        estimatedSavingsChf: Math.round(vvg * 12 * 0.25),
-        severity: "medium",
+        description: `Du zahlst CHF ${vvg.toFixed(0)}/Mt für Zusätze (CHF ${(vvg * 12).toFixed(0)}/Jahr). Prüfe, welche Leistungen du im letzten Jahr wirklich genutzt hast.`,
+        estimatedSavingsChf: 0,
+        severity: "info",
         policyId: p.id,
         memberName,
         cta: { label: "Police ansehen", to: "/app/policen" },
