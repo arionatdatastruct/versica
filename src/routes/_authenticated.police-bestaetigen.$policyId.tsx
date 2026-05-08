@@ -76,7 +76,7 @@ function PoliceBestaetigen() {
         setKvgFranchise(p.kvg_franchise != null ? String(p.kvg_franchise) : (p.franchise != null ? String(p.franchise) : ""));
         setKvgAccident(!!(p.kvg_accident_coverage ?? p.accident_coverage));
         setKvgPremium(p.kvg_monthly_premium != null ? String(p.kvg_monthly_premium) : (p.monthly_premium != null ? String(p.monthly_premium) : ""));
-        setVvgProducts(Array.isArray(p.vvg_products) ? p.vvg_products : []);
+        setVvgProducts(Array.isArray(p.vvg_products) ? (p.vvg_products as VVGProduct[]) : []);
         if (p.member_id) setMemberId(p.member_id);
       }
       if (ms) {
