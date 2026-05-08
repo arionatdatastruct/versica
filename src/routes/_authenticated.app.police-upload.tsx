@@ -62,7 +62,7 @@ function PoliceUpload() {
         console.error("OCR fehlgeschlagen", ocrErr);
       }
 
-      navigate({ to: "/police-bestaetigen/$policyId", params: { policyId } });
+      navigate({ to: "/app/police-bestaetigen/$policyId", params: { policyId } });
     } catch (e: any) {
       console.error(e);
       toast.error(e?.message ?? "Upload fehlgeschlagen");

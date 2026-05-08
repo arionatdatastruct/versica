@@ -104,7 +104,7 @@ function PolicyDetailPage() {
     try {
       await deletePolicy(policy.id, policy.file_path);
       toast.success("Police gelöscht");
-      navigate({ to: "/policen" });
+      navigate({ to: "/app/policen" });
     } catch (e: any) {
       toast.error("Löschen fehlgeschlagen: " + (e?.message ?? e));
     }
@@ -124,7 +124,7 @@ function PolicyDetailPage() {
         <main className="container mx-auto max-w-2xl py-16 text-center">
           <p className="mb-6">Police nicht gefunden.</p>
           <Button asChild variant="outline" className="rounded-full">
-            <Link to="/policen">
+            <Link to="/app/policen">
               <ArrowLeft className="w-4 h-4 mr-2" /> Zurück zur Übersicht
             </Link>
           </Button>
@@ -160,7 +160,7 @@ function PolicyDetailPage() {
             size="sm"
             className="rounded-full -ml-2"
           >
-            <Link to="/policen">
+            <Link to="/app/policen">
               <ArrowLeft className="w-4 h-4 mr-2" /> Alle Policen
             </Link>
           </Button>
@@ -184,7 +184,7 @@ function PolicyDetailPage() {
               className="rounded-full"
             >
               <Link
-                to="/police-bestaetigen/$policyId"
+                to="/app/police-bestaetigen/$policyId"
                 params={{ policyId: policy.id }}
               >
                 <Pencil className="w-3.5 h-3.5 mr-1.5" /> Bearbeiten

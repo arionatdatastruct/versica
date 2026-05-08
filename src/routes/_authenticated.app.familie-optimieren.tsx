@@ -21,7 +21,7 @@ function FamilieOptimieren() {
           mithilfe der KI die optimale Verteilung – inklusive Familien-Rabatten und Empfehlungen.
         </p>
         <Button asChild className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-          <Link to="/dashboard">Zurück zum Dashboard</Link>
+          <Link to="/app/dashboard">Zurück zum Dashboard</Link>
         </Button>
       </main>
       <Footer />

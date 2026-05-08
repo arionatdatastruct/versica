@@ -112,7 +112,7 @@ function FamiliePage() {
         )}
 
         <div className="mt-8">
-          <Button asChild variant="ghost"><Link to="/dashboard">← Zurück zum Dashboard</Link></Button>
+          <Button asChild variant="ghost"><Link to="/app/dashboard">← Zurück zum Dashboard</Link></Button>
         </div>
       </main>
       <Footer />

@@ -182,7 +182,7 @@ function PoliceBestaetigen() {
     try {
       await deletePolicy(policy.id, policy.file_path);
       toast.success("Police verworfen");
-      navigate({ to: "/policen" });
+      navigate({ to: "/app/policen" });
     } catch (e: any) {
       toast.error("Löschen fehlgeschlagen: " + (e?.message ?? e));
       setDiscarding(false);
@@ -238,7 +238,7 @@ function PoliceBestaetigen() {
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Police gespeichert.");
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/app/dashboard" });
   };
 
   if (loading) {
@@ -343,7 +343,7 @@ function PoliceBestaetigen() {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild variant="outline" size="sm" className="rounded-full">
-                    <Link to="/police-bestaetigen/$policyId" params={{ policyId: duplicates[0].id }}>
+                    <Link to="/app/police-bestaetigen/$policyId" params={{ policyId: duplicates[0].id }}>
                       Bestehende öffnen
                     </Link>
                   </Button>
@@ -477,7 +477,7 @@ function PoliceBestaetigen() {
         </div>
 
         <div className="flex items-center justify-between mt-6 gap-3">
-          <Button variant="outline" onClick={() => navigate({ to: "/police-upload" })}>Erneut hochladen</Button>
+          <Button variant="outline" onClick={() => navigate({ to: "/app/police-upload" })}>Erneut hochladen</Button>
           <Button onClick={save} disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
             Speichern & weiter

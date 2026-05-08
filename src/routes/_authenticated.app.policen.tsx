@@ -250,7 +250,7 @@ function PolicenPage() {
             asChild
             className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-6"
           >
-            <Link to="/police-upload">
+            <Link to="/app/police-upload">
               <Upload className="mr-2 h-4 w-4" /> Police hochladen
             </Link>
           </Button>
@@ -376,7 +376,7 @@ function PolicenPage() {
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <Link
-                        to="/policen/$policyId"
+                        to="/app/policen/$policyId"
                         params={{ policyId: p.id }}
                         className="font-semibold truncate hover:text-primary hover:underline underline-offset-4"
                       >
@@ -416,13 +416,13 @@ function PolicenPage() {
                       className="rounded-full"
                     >
                       {p.confirmed_at ? (
-                        <Link to="/policen/$policyId" params={{ policyId: p.id }}>
+                        <Link to="/app/policen/$policyId" params={{ policyId: p.id }}>
                           <FileText className="w-3.5 h-3.5 mr-1.5" />
                           Öffnen
                         </Link>
                       ) : (
                         <Link
-                          to="/police-bestaetigen/$policyId"
+                          to="/app/police-bestaetigen/$policyId"
                           params={{ policyId: p.id }}
                         >
                           <Pencil className="w-3.5 h-3.5 mr-1.5" />

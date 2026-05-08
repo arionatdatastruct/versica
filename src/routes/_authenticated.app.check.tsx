@@ -20,7 +20,7 @@ function Check() {
           Hier startet bald der jährliche, KI-gestützte Versicherungs-Check über alle deine Policen.
         </p>
         <Button asChild className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-          <Link to="/dashboard">Zurück zum Dashboard</Link>
+          <Link to="/app/dashboard">Zurück zum Dashboard</Link>
         </Button>
       </main>
       <Footer />

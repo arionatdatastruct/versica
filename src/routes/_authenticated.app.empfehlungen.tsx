@@ -21,7 +21,7 @@ function Empfehlungen() {
           hier deinen persönlichen Empfehlungslink und kannst Cashback verdienen.
         </p>
         <Button asChild className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-          <Link to="/dashboard">Zurück zum Dashboard</Link>
+          <Link to="/app/dashboard">Zurück zum Dashboard</Link>
         </Button>
       </main>
       <Footer />
