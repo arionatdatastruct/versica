@@ -22,6 +22,7 @@ import { Route as AuthenticatedFamilieRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedEmpfehlungenRouteImport } from './routes/_authenticated.empfehlungen'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedCheckRouteImport } from './routes/_authenticated.check'
+import { Route as AuthenticatedPolicenPolicyIdRouteImport } from './routes/_authenticated.policen.$policyId'
 import { Route as AuthenticatedPoliceBestaetigenPolicyIdRouteImport } from './routes/_authenticated.police-bestaetigen.$policyId'
 
 const VergleichRoute = VergleichRouteImport.update({
@@ -91,6 +92,12 @@ const AuthenticatedCheckRoute = AuthenticatedCheckRouteImport.update({
   path: '/check',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPolicenPolicyIdRoute =
+  AuthenticatedPolicenPolicyIdRouteImport.update({
+    id: '/$policyId',
+    path: '/$policyId',
+    getParentRoute: () => AuthenticatedPolicenRoute,
+  } as any)
 const AuthenticatedPoliceBestaetigenPolicyIdRoute =
   AuthenticatedPoliceBestaetigenPolicyIdRouteImport.update({
     id: '/police-bestaetigen/$policyId',
@@ -110,8 +117,9 @@ export interface FileRoutesByFullPath {
   '/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/kuendigung': typeof AuthenticatedKuendigungRoute
   '/police-upload': typeof AuthenticatedPoliceUploadRoute
-  '/policen': typeof AuthenticatedPolicenRoute
+  '/policen': typeof AuthenticatedPolicenRouteWithChildren
   '/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
+  '/policen/$policyId': typeof AuthenticatedPolicenPolicyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -125,8 +133,9 @@ export interface FileRoutesByTo {
   '/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/kuendigung': typeof AuthenticatedKuendigungRoute
   '/police-upload': typeof AuthenticatedPoliceUploadRoute
-  '/policen': typeof AuthenticatedPolicenRoute
+  '/policen': typeof AuthenticatedPolicenRouteWithChildren
   '/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
+  '/policen/$policyId': typeof AuthenticatedPolicenPolicyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -142,8 +151,9 @@ export interface FileRoutesById {
   '/_authenticated/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/_authenticated/kuendigung': typeof AuthenticatedKuendigungRoute
   '/_authenticated/police-upload': typeof AuthenticatedPoliceUploadRoute
-  '/_authenticated/policen': typeof AuthenticatedPolicenRoute
+  '/_authenticated/policen': typeof AuthenticatedPolicenRouteWithChildren
   '/_authenticated/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
+  '/_authenticated/policen/$policyId': typeof AuthenticatedPolicenPolicyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/police-upload'
     | '/policen'
     | '/police-bestaetigen/$policyId'
+    | '/policen/$policyId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/police-upload'
     | '/policen'
     | '/police-bestaetigen/$policyId'
+    | '/policen/$policyId'
   id:
     | '__root__'
     | '/'
@@ -192,6 +204,7 @@ export interface FileRouteTypes {
     | '/_authenticated/police-upload'
     | '/_authenticated/policen'
     | '/_authenticated/police-bestaetigen/$policyId'
+    | '/_authenticated/policen/$policyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -295,6 +308,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/policen/$policyId': {
+      id: '/_authenticated/policen/$policyId'
+      path: '/$policyId'
+      fullPath: '/policen/$policyId'
+      preLoaderRoute: typeof AuthenticatedPolicenPolicyIdRouteImport
+      parentRoute: typeof AuthenticatedPolicenRoute
+    }
     '/_authenticated/police-bestaetigen/$policyId': {
       id: '/_authenticated/police-bestaetigen/$policyId'
       path: '/police-bestaetigen/$policyId'
@@ -305,6 +325,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedPolicenRouteChildren {
+  AuthenticatedPolicenPolicyIdRoute: typeof AuthenticatedPolicenPolicyIdRoute
+}
+
+const AuthenticatedPolicenRouteChildren: AuthenticatedPolicenRouteChildren = {
+  AuthenticatedPolicenPolicyIdRoute: AuthenticatedPolicenPolicyIdRoute,
+}
+
+const AuthenticatedPolicenRouteWithChildren =
+  AuthenticatedPolicenRoute._addFileChildren(AuthenticatedPolicenRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCheckRoute: typeof AuthenticatedCheckRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
@@ -313,7 +344,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFamilieOptimierenRoute: typeof AuthenticatedFamilieOptimierenRoute
   AuthenticatedKuendigungRoute: typeof AuthenticatedKuendigungRoute
   AuthenticatedPoliceUploadRoute: typeof AuthenticatedPoliceUploadRoute
-  AuthenticatedPolicenRoute: typeof AuthenticatedPolicenRoute
+  AuthenticatedPolicenRoute: typeof AuthenticatedPolicenRouteWithChildren
   AuthenticatedPoliceBestaetigenPolicyIdRoute: typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
 }
 
@@ -325,7 +356,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFamilieOptimierenRoute: AuthenticatedFamilieOptimierenRoute,
   AuthenticatedKuendigungRoute: AuthenticatedKuendigungRoute,
   AuthenticatedPoliceUploadRoute: AuthenticatedPoliceUploadRoute,
-  AuthenticatedPolicenRoute: AuthenticatedPolicenRoute,
+  AuthenticatedPolicenRoute: AuthenticatedPolicenRouteWithChildren,
   AuthenticatedPoliceBestaetigenPolicyIdRoute:
     AuthenticatedPoliceBestaetigenPolicyIdRoute,
 }
