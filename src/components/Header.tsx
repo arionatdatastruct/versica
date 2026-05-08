@@ -30,6 +30,8 @@ export const Header = () => {
     (user?.user_metadata?.display_name as string | undefined)?.[0]?.toUpperCase() ??
     user?.email?.[0]?.toUpperCase() ??
     "?";
+  const isPlatform = path.startsWith("/app");
+  const navItems = isPlatform && user ? platformNav : marketingNav;
 
   return (
     <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur border-b border-border/60">
@@ -42,19 +44,17 @@ export const Header = () => {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          {navItems
-            .filter((item) => !item.authOnly || !!user)
-            .map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  path === item.to ? "text-primary" : "text-foreground"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+          {navItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                path === item.to ? "text-primary" : "text-foreground"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex items-center gap-3">
