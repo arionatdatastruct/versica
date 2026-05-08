@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, AlertTriangle, CheckCircle2, Plus, Trash2, Copy as CopyIcon } from "lucide-react";
+import { Loader2, AlertTriangle, CheckCircle2, Plus, Trash2, Copy as CopyIcon, ExternalLink, FileWarning } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,6 +41,8 @@ function PoliceBestaetigen() {
   const [members, setMembers] = useState<Member[]>([]);
   const [duplicates, setDuplicates] = useState<Array<{ id: string; insurer: string | null; policy_number: string | null; valid_from: string | null; confirmed_at: string | null }>>([]);
   const [discarding, setDiscarding] = useState(false);
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
 
   // Police-Info
   const [policyType, setPolicyType] = useState<string>("");
@@ -84,6 +86,8 @@ function PoliceBestaetigen() {
 
       if (p) {
         setPolicy(p);
+        setSignedUrl(null);
+        setPreviewError(null);
         setPolicyType(p.policy_type ?? "");
         setInsurer(p.insurer ?? "");
         setPolicyNumber(p.policy_number ?? "");
@@ -95,6 +99,14 @@ function PoliceBestaetigen() {
         setKvgPremium(p.kvg_monthly_premium != null ? String(p.kvg_monthly_premium) : (p.monthly_premium != null ? String(p.monthly_premium) : ""));
         setVvgProducts(Array.isArray(p.vvg_products) ? (p.vvg_products as VVGProduct[]) : []);
         if (p.member_id) setMemberId(p.member_id);
+        if (p.file_path) {
+          const { data: urlData, error: urlErr } = await supabase.storage
+            .from("policy-uploads")
+            .createSignedUrl(p.file_path, 3600);
+          if (cancelled) return;
+          if (urlErr) setPreviewError("Vorschau-URL konnte nicht erstellt werden.");
+          else setSignedUrl(urlData?.signedUrl ?? null);
+        }
       }
       if (ms) {
         const mapped: Member[] = ms.map((m: any) => ({
