@@ -200,10 +200,16 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
         )}
       </div>
       <div className="text-right md:text-right md:min-w-[120px]">
-        <p className="text-2xl font-semibold text-accent">
-          CHF {rec.estimatedSavingsChf.toLocaleString("de-CH", { maximumFractionDigits: 0 })}
-        </p>
-        <p className="text-xs text-foreground-secondary">geschätzt / Jahr</p>
+        {rec.estimatedSavingsChf > 0 ? (
+          <>
+            <p className="text-2xl font-semibold text-accent">
+              CHF {rec.estimatedSavingsChf.toLocaleString("de-CH", { maximumFractionDigits: 0 })}
+            </p>
+            <p className="text-xs text-foreground-secondary">geschätzt / Jahr</p>
+          </>
+        ) : (
+          <p className="text-xs text-foreground-tertiary">Hinweis</p>
+        )}
       </div>
     </div>
   );
