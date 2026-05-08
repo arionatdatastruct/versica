@@ -147,14 +147,27 @@ function DashboardPage() {
                       )}
                     </div>
                     {has ? (
-                      memberPolicies.map((p) => (
-                        <div key={p.id} className="flex items-center justify-between mb-3">
-                          <span className="inline-block bg-primary-light text-primary-dark px-3 py-1 rounded-full text-xs font-medium">
-                            {p.insurer ?? "?"} · {p.model ?? "—"}
-                          </span>
-                          <p className="font-semibold">{p.monthly_premium != null ? `CHF ${p.monthly_premium.toFixed(2)}/Mt` : "—"}</p>
-                        </div>
-                      ))
+                      <div className="space-y-2">
+                        {memberPolicies.map((p) => {
+                          const premium = p.total_monthly_premium ?? p.monthly_premium ?? p.kvg_monthly_premium;
+                          return (
+                            <div key={p.id} className="flex items-center justify-between gap-2 py-1">
+                              <span className="inline-block bg-primary-light text-primary-dark px-3 py-1 rounded-full text-xs font-medium truncate">
+                                {p.insurer ?? "?"} · {p.model ?? "—"}
+                              </span>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <p className="font-semibold text-sm">{premium != null ? `CHF ${premium.toFixed(2)}` : "—"}</p>
+                                <Button asChild variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0" title="Bearbeiten">
+                                  <Link to="/police-bestaetigen/$policyId" params={{ policyId: p.id }}>
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </Link>
+                                </Button>
+                                <DeleteButton label={p.insurer ?? "diese Police"} onConfirm={() => handleDelete(p)} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     ) : (
                       <Button asChild className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
                         <Link to="/police-upload">Police für {m.first_name} hochladen</Link>
