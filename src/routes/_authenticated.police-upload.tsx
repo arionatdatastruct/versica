@@ -52,13 +52,14 @@ function PoliceUpload() {
         .update({ file_path: path, ocr_status: "pending" }).eq("id", policyId);
       if (updErr) throw updErr;
 
-      // OCR via Klippa starten
-      setStatusMsg("Versica liest deine Police …");
+      // OCR via Klippa starten — Sicherheitsnetz: nach 90s trotzdem weiter
+      setStatusMsg("Versica liest deine Police … das kann bis zu einer Minute dauern.");
+      const ocrPromise = supabase.functions.invoke("process-policy", { body: { policyId } });
+      const timeout = new Promise<void>((resolve) => setTimeout(resolve, 90_000));
       try {
-        await supabase.functions.invoke("process-policy", { body: { policyId } });
+        await Promise.race([ocrPromise, timeout]);
       } catch (ocrErr) {
         console.error("OCR fehlgeschlagen", ocrErr);
-        // egal — User landet trotzdem auf Bestätigung mit leeren Feldern
       }
 
       navigate({ to: "/police-bestaetigen/$policyId", params: { policyId } });
