@@ -205,7 +205,7 @@ function PolicyDetailPage() {
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : isHeic ? (
-              <EmptyPreview text="HEIC-Vorschau wird vom Browser nicht unterstützt — über „PDF öffnen" herunterladen." />
+              <EmptyPreview text={'HEIC-Vorschau wird vom Browser nicht unterstützt — über „PDF öffnen" herunterladen.'} />
             ) : isPdf ? (
               <iframe
                 src={signedUrl}
