@@ -295,7 +295,7 @@ function Stepper({ step }: { step: Step }) {
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
                   done
-                    ? "bg-success text-success-foreground"
+                    ? "bg-success text-background"
                     : active
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-foreground-secondary"
