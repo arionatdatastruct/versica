@@ -49,10 +49,18 @@ function PoliceUpload() {
       if (upErr) throw upErr;
 
       const { error: updErr } = await supabase.from("policies")
-        .update({ file_path: path }).eq("id", policyId);
+        .update({ file_path: path, ocr_status: "pending" }).eq("id", policyId);
       if (updErr) throw updErr;
 
-      // Phase 1: keine OCR — direkt zur manuellen Bestätigung
+      // OCR via Klippa starten
+      setStatusMsg("Versica liest deine Police …");
+      try {
+        await supabase.functions.invoke("process-policy", { body: { policyId } });
+      } catch (ocrErr) {
+        console.error("OCR fehlgeschlagen", ocrErr);
+        // egal — User landet trotzdem auf Bestätigung mit leeren Feldern
+      }
+
       navigate({ to: "/police-bestaetigen/$policyId", params: { policyId } });
     } catch (e: any) {
       console.error(e);
