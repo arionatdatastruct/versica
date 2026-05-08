@@ -5,9 +5,10 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
-  { label: "Beratung", to: "/beratung" },
-  { label: "Vergleich", to: "/vergleich" },
-  { label: "Familie", to: "/familie" },
+  { label: "Policen", to: "/policen", authOnly: true },
+  { label: "Beratung", to: "/beratung", authOnly: false },
+  { label: "Vergleich", to: "/vergleich", authOnly: false },
+  { label: "Familie", to: "/familie", authOnly: true },
 ] as const;
 
 const langs = ["DE", "FR", "IT", "EN"];
@@ -34,17 +35,19 @@ export const Header = () => {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          {navItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                path === item.to ? "text-primary" : "text-foreground"
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems
+            .filter((item) => !item.authOnly || !!user)
+            .map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  path === item.to ? "text-primary" : "text-foreground"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
         </nav>
 
         <div className="flex items-center gap-3">

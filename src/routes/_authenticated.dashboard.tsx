@@ -3,15 +3,19 @@ import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Copy, Check, AlertTriangle, FileText, Home, ShieldCheck, Upload, Loader2 } from "lucide-react";
+import { ArrowRight, Copy, Check, AlertTriangle, Upload, Loader2, Pencil, ListChecks } from "lucide-react";
 import { VersicaIcon } from "@/components/VersicaIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { deletePolicy } from "@/lib/policy-actions";
+import { DeleteButton } from "./_authenticated.policen";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({ component: DashboardPage });
 
-type PolicyRow = { id: string; insurer: string | null; model: string | null; monthly_premium: number | null; member_id: string | null; ocr_status: string };
+type PolicyRow = { id: string; insurer: string | null; model: string | null; monthly_premium: number | null; total_monthly_premium: number | null; kvg_monthly_premium: number | null; member_id: string | null; ocr_status: string; file_path: string | null };
 type MemberRow = { id: string; first_name: string; last_name: string | null; is_self: boolean };
+
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -27,7 +31,7 @@ function DashboardPage() {
           .select("id, first_name, last_name, is_self, household_id, households!inner(owner_id)")
           .eq("households.owner_id", user.id),
         supabase.from("policies")
-          .select("id, insurer, model, monthly_premium, member_id, ocr_status")
+          .select("id, insurer, model, monthly_premium, total_monthly_premium, kvg_monthly_premium, member_id, ocr_status, file_path")
           .eq("owner_id", user.id),
       ]);
       setMembers((ms ?? []).map((m: any) => ({ id: m.id, first_name: m.first_name, last_name: m.last_name, is_self: m.is_self })));
@@ -41,7 +45,20 @@ function DashboardPage() {
     const arr = policiesByMember.get(p.member_id) ?? [];
     arr.push(p); policiesByMember.set(p.member_id, arr);
   }
-  const totalMonthly = policies.reduce((s, p) => s + (p.monthly_premium ?? 0), 0);
+  const totalMonthly = policies.reduce(
+    (s, p) => s + (p.total_monthly_premium ?? p.monthly_premium ?? p.kvg_monthly_premium ?? 0),
+    0,
+  );
+
+  const handleDelete = async (p: PolicyRow) => {
+    try {
+      await deletePolicy(p.id, p.file_path);
+      setPolicies((prev) => prev.filter((x) => x.id !== p.id));
+      toast.success("Police gelöscht");
+    } catch (e: any) {
+      toast.error("Löschen fehlgeschlagen: " + (e?.message ?? e));
+    }
+  };
 
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
@@ -60,9 +77,14 @@ function DashboardPage() {
                 : `Versica hat ${policies.length} Police(n) analysiert.`}
             </p>
           </div>
-          <Button asChild className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-6">
-            <Link to="/police-upload"><Upload className="mr-2 h-4 w-4" /> Police hochladen</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" className="rounded-full">
+              <Link to="/policen"><ListChecks className="mr-2 h-4 w-4" /> Alle Policen</Link>
+            </Button>
+            <Button asChild className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-6">
+              <Link to="/police-upload"><Upload className="mr-2 h-4 w-4" /> Police hochladen</Link>
+            </Button>
+          </div>
         </div>
 
         <section className="bg-primary-light rounded-3xl p-8 lg:p-10 grid lg:grid-cols-[1fr_auto] gap-6 items-center relative overflow-hidden">
@@ -125,14 +147,27 @@ function DashboardPage() {
                       )}
                     </div>
                     {has ? (
-                      memberPolicies.map((p) => (
-                        <div key={p.id} className="flex items-center justify-between mb-3">
-                          <span className="inline-block bg-primary-light text-primary-dark px-3 py-1 rounded-full text-xs font-medium">
-                            {p.insurer ?? "?"} · {p.model ?? "—"}
-                          </span>
-                          <p className="font-semibold">{p.monthly_premium != null ? `CHF ${p.monthly_premium.toFixed(2)}/Mt` : "—"}</p>
-                        </div>
-                      ))
+                      <div className="space-y-2">
+                        {memberPolicies.map((p) => {
+                          const premium = p.total_monthly_premium ?? p.monthly_premium ?? p.kvg_monthly_premium;
+                          return (
+                            <div key={p.id} className="flex items-center justify-between gap-2 py-1">
+                              <span className="inline-block bg-primary-light text-primary-dark px-3 py-1 rounded-full text-xs font-medium truncate">
+                                {p.insurer ?? "?"} · {p.model ?? "—"}
+                              </span>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <p className="font-semibold text-sm">{premium != null ? `CHF ${premium.toFixed(2)}` : "—"}</p>
+                                <Button asChild variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0" title="Bearbeiten">
+                                  <Link to="/police-bestaetigen/$policyId" params={{ policyId: p.id }}>
+                                    <Pencil className="w-3.5 h-3.5" />
+                                  </Link>
+                                </Button>
+                                <DeleteButton label={p.insurer ?? "diese Police"} onConfirm={() => handleDelete(p)} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     ) : (
                       <Button asChild className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
                         <Link to="/police-upload">Police für {m.first_name} hochladen</Link>
