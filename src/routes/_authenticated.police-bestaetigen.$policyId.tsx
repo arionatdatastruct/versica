@@ -58,12 +58,13 @@ function PoliceBestaetigen() {
   useEffect(() => {
     if (!policyId || !user) return;
     (async () => {
-      const [{ data: p }, { data: ms }] = await Promise.all([
+      const [{ data: pRaw }, { data: ms }] = await Promise.all([
         supabase.from("policies").select("*").eq("id", policyId).eq("owner_id", user.id).maybeSingle(),
         supabase.from("household_members")
           .select("id, first_name, last_name, is_self, household_id, households!inner(owner_id)")
           .eq("households.owner_id", user.id),
       ]);
+      const p: any = pRaw;
       if (p) {
         setPolicy(p);
         setPolicyType(p.policy_type ?? "");
