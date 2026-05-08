@@ -375,9 +375,13 @@ function PolicenPage() {
                   />
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold truncate">
+                      <Link
+                        to="/policen/$policyId"
+                        params={{ policyId: p.id }}
+                        className="font-semibold truncate hover:text-primary hover:underline underline-offset-4"
+                      >
                         {p.insurer ?? "Unbekannter Versicherer"}
-                      </p>
+                      </Link>
                       <StatusBadge status={p.ocr_status} confirmed={!!p.confirmed_at} />
                       {isDuplicate && (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-warning/15 text-warning text-xs font-medium">
