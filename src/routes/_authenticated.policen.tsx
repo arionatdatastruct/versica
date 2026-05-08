@@ -415,13 +415,20 @@ function PolicenPage() {
                       size="sm"
                       className="rounded-full"
                     >
-                      <Link
-                        to="/police-bestaetigen/$policyId"
-                        params={{ policyId: p.id }}
-                      >
-                        <Pencil className="w-3.5 h-3.5 mr-1.5" />
-                        {p.confirmed_at ? "Öffnen" : "Bestätigen"}
-                      </Link>
+                      {p.confirmed_at ? (
+                        <Link to="/policen/$policyId" params={{ policyId: p.id }}>
+                          <FileText className="w-3.5 h-3.5 mr-1.5" />
+                          Öffnen
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/police-bestaetigen/$policyId"
+                          params={{ policyId: p.id }}
+                        >
+                          <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                          Bestätigen
+                        </Link>
+                      )}
                     </Button>
                     <DeleteButton
                       label={p.insurer ?? "diese Police"}
