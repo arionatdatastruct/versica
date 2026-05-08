@@ -296,7 +296,9 @@ function PoliceBestaetigen() {
               ) : isHeic ? (
                 <EmptyPreview text={'HEIC-Vorschau wird vom Browser nicht unterstützt — über „PDF öffnen" herunterladen.'} />
               ) : isPdf ? (
-                <iframe src={signedUrl} title="Police-Vorschau" className="w-full h-full border-0" />
+                <object data={signedUrl} type="application/pdf" className="w-full h-full">
+                  <iframe src={signedUrl} title="Police-Vorschau" className="w-full h-full border-0" />
+                </object>
               ) : isImage ? (
                 <div className="h-full overflow-auto bg-muted/40 flex items-center justify-center p-2">
                   <img src={signedUrl} alt="Police-Vorschau" className="max-w-full h-auto rounded-md shadow-sm" />
