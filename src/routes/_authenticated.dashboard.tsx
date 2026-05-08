@@ -3,15 +3,19 @@ import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Copy, Check, AlertTriangle, FileText, Home, ShieldCheck, Upload, Loader2 } from "lucide-react";
+import { ArrowRight, Copy, Check, AlertTriangle, Upload, Loader2, Pencil, ListChecks } from "lucide-react";
 import { VersicaIcon } from "@/components/VersicaIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { deletePolicy } from "@/lib/policy-actions";
+import { DeleteButton } from "./_authenticated.policen";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({ component: DashboardPage });
 
-type PolicyRow = { id: string; insurer: string | null; model: string | null; monthly_premium: number | null; member_id: string | null; ocr_status: string };
+type PolicyRow = { id: string; insurer: string | null; model: string | null; monthly_premium: number | null; total_monthly_premium: number | null; kvg_monthly_premium: number | null; member_id: string | null; ocr_status: string; file_path: string | null };
 type MemberRow = { id: string; first_name: string; last_name: string | null; is_self: boolean };
+
 
 function DashboardPage() {
   const { user } = useAuth();
@@ -27,7 +31,7 @@ function DashboardPage() {
           .select("id, first_name, last_name, is_self, household_id, households!inner(owner_id)")
           .eq("households.owner_id", user.id),
         supabase.from("policies")
-          .select("id, insurer, model, monthly_premium, member_id, ocr_status")
+          .select("id, insurer, model, monthly_premium, total_monthly_premium, kvg_monthly_premium, member_id, ocr_status, file_path")
           .eq("owner_id", user.id),
       ]);
       setMembers((ms ?? []).map((m: any) => ({ id: m.id, first_name: m.first_name, last_name: m.last_name, is_self: m.is_self })));
