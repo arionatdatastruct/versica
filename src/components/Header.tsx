@@ -4,12 +4,18 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
-const navItems = [
-  { label: "Dashboard", to: "/app/dashboard", authOnly: true },
-  { label: "Policen", to: "/app/policen", authOnly: true },
-  { label: "Familie", to: "/app/familie", authOnly: true },
-  { label: "Beratung", to: "/beratung", authOnly: false },
-  { label: "Vergleich", to: "/vergleich", authOnly: false },
+const platformNav = [
+  { label: "Dashboard", to: "/app/dashboard" },
+  { label: "Policen", to: "/app/policen" },
+  { label: "Familie", to: "/app/familie" },
+  { label: "Empfehlungen", to: "/app/empfehlungen" },
+] as const;
+
+const marketingNav = [
+  { label: "Beratung", to: "/beratung" },
+  { label: "Vergleich", to: "/vergleich" },
+  { label: "Preise", to: "/preise" },
+  { label: "Über uns", to: "/ueber-uns" },
 ] as const;
 
 const langs = ["DE", "FR", "IT", "EN"];
@@ -24,6 +30,8 @@ export const Header = () => {
     (user?.user_metadata?.display_name as string | undefined)?.[0]?.toUpperCase() ??
     user?.email?.[0]?.toUpperCase() ??
     "?";
+  const isPlatform = path.startsWith("/app");
+  const navItems = isPlatform && user ? platformNav : marketingNav;
 
   return (
     <header className="sticky top-0 z-40 bg-surface/90 backdrop-blur border-b border-border/60">
@@ -36,19 +44,17 @@ export const Header = () => {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
-          {navItems
-            .filter((item) => !item.authOnly || !!user)
-            .map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  path === item.to ? "text-primary" : "text-foreground"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+          {navItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                path === item.to ? "text-primary" : "text-foreground"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex items-center gap-3">
