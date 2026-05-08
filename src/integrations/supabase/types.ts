@@ -97,6 +97,9 @@ export type Database = {
           file_path: string | null
           franchise: number | null
           id: string
+          insured_birth_date: string | null
+          insured_first_name: string | null
+          insured_last_name: string | null
           insurer: string | null
           kvg_accident_coverage: boolean | null
           kvg_franchise: number | null
@@ -129,6 +132,9 @@ export type Database = {
           file_path?: string | null
           franchise?: number | null
           id?: string
+          insured_birth_date?: string | null
+          insured_first_name?: string | null
+          insured_last_name?: string | null
           insurer?: string | null
           kvg_accident_coverage?: boolean | null
           kvg_franchise?: number | null
@@ -161,6 +167,9 @@ export type Database = {
           file_path?: string | null
           franchise?: number | null
           id?: string
+          insured_birth_date?: string | null
+          insured_first_name?: string | null
+          insured_last_name?: string | null
           insurer?: string | null
           kvg_accident_coverage?: boolean | null
           kvg_franchise?: number | null

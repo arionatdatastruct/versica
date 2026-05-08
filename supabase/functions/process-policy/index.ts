@@ -10,7 +10,8 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const KLIPPA_URL = "https://custom-ocr.klippa.com/api/v1/parseDocument";
+// KLIPPA_CONFIG_ID enthält den "Slug" der Prompt-Builder-Konfiguration (z. B. "versica")
+const KLIPPA_BASE = "https://dochorizon.klippa.com/api/services/document_capturing/v1/prompt_builder/configurations";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -64,25 +65,24 @@ Deno.serve(async (req) => {
     const buf = new Uint8Array(await fileData.arrayBuffer());
     const base64 = encodeBase64(buf);
 
-    // Klippa aufrufen
-    const klippaRes = await fetch(KLIPPA_URL, {
+    // Klippa Prompt Builder aufrufen
+    const klippaRes = await fetch(`${KLIPPA_BASE}/${KLIPPA_CONFIG_ID}`, {
       method: "POST",
       headers: {
-        "X-Auth-Key": KLIPPA_API_KEY,
+        "x-api-key": KLIPPA_API_KEY,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        document: base64,
-        template: KLIPPA_CONFIG_ID,
-        pdf_text_extraction: "fast",
+        documents: [{ data: base64 }],
       }),
     });
 
     const klippaJson = await klippaRes.json();
     if (!klippaRes.ok) {
       console.error("Klippa Fehler", klippaRes.status, klippaJson);
-      return await fail(admin, policyId, `Klippa: ${klippaRes.status}`);
+      return await fail(admin, policyId, `Klippa: ${klippaRes.status} ${klippaJson?.message ?? ""}`);
     }
+    console.log("Klippa Response", JSON.stringify(klippaJson).slice(0, 2000));
 
     // Klippa-Response parsen — Struktur: { data: { parsed: {...}, raw_text: "...", confidence: {...} } }
     // Wir sind defensiv, weil das genaue Format pro Custom-Config variieren kann.
