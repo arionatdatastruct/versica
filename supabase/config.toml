@@ -1,1 +1,4 @@
 project_id = "qydvhwjdzvissilfdpfl"
+
+[functions.process-policy]
+verify_jwt = true
