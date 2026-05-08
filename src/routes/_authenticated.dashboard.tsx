@@ -84,9 +84,14 @@ function DashboardPage() {
         </section>
 
         <section>
-          <div className="mb-6">
-            <div className="eyebrow mb-2">Familienmitglieder</div>
-            <h2 className="text-3xl font-semibold">{members.length} Versicherte im Überblick</h2>
+          <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
+            <div>
+              <div className="eyebrow mb-2">Familienmitglieder</div>
+              <h2 className="text-3xl font-semibold">{members.length} Versicherte im Überblick</h2>
+            </div>
+            <Button asChild variant="outline" className="rounded-full">
+              <Link to="/familie">Mitglieder verwalten</Link>
+            </Button>
           </div>
           {members.length === 0 ? (
             <div className="card-soft p-8 text-center text-foreground-secondary">
