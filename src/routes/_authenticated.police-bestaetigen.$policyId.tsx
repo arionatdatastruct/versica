@@ -264,6 +264,41 @@ function PoliceBestaetigen() {
           </div>
         )}
 
+        {duplicates.length > 0 && !policy.confirmed_at && (
+          <div className="mb-6 rounded-2xl bg-warning/10 border border-warning/40 p-5">
+            <div className="flex items-start gap-3">
+              <CopyIcon className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold mb-1">Mögliches Duplikat erkannt</p>
+                <p className="text-sm text-foreground-secondary mb-3">
+                  Du hast bereits {duplicates.length === 1 ? "eine ähnliche Police" : `${duplicates.length} ähnliche Policen`} gespeichert
+                  {duplicates[0].insurer ? ` (${duplicates[0].insurer}` : ""}
+                  {duplicates[0].policy_number ? `, Nr. ${duplicates[0].policy_number}` : ""}
+                  {duplicates[0].insurer ? ")" : ""}.
+                  Möchtest du diesen Upload trotzdem behalten?
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild variant="outline" size="sm" className="rounded-full">
+                    <Link to="/police-bestaetigen/$policyId" params={{ policyId: duplicates[0].id }}>
+                      Bestehende öffnen
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                    onClick={discardCurrent}
+                    disabled={discarding}
+                  >
+                    {discarding ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
+                    Diesen Upload verwerfen
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <p className="text-sm font-medium text-primary mb-3">Schritt 2 von 3 · Bestätigen</p>
         <h1 className="text-3xl lg:text-4xl font-semibold mb-8">Stimmen die Angaben?</h1>
 
