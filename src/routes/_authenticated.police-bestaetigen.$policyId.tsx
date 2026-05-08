@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, AlertTriangle, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { Loader2, AlertTriangle, CheckCircle2, Plus, Trash2, Copy as CopyIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { deletePolicy } from "@/lib/policy-actions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/police-bestaetigen/$policyId")({
@@ -37,6 +39,8 @@ function PoliceBestaetigen() {
   const [saving, setSaving] = useState(false);
   const [policy, setPolicy] = useState<any>(null);
   const [members, setMembers] = useState<Member[]>([]);
+  const [duplicates, setDuplicates] = useState<Array<{ id: string; insurer: string | null; policy_number: string | null; valid_from: string | null; confirmed_at: string | null }>>([]);
+  const [discarding, setDiscarding] = useState(false);
 
   // Police-Info
   const [policyType, setPolicyType] = useState<string>("");
@@ -114,6 +118,56 @@ function PoliceBestaetigen() {
     load();
     return () => { cancelled = true; };
   }, [policyId, user]);
+
+  // Duplikat-Erkennung: andere Policen desselben Owners mit gleichem Versicherer + Person + Gültigkeit
+  // ODER identischer Policennummer.
+  useEffect(() => {
+    if (!user || !policy) return;
+    let cancelled = false;
+    const run = async () => {
+      const orParts: string[] = [];
+      if (policy.policy_number) {
+        orParts.push(`policy_number.eq.${policy.policy_number}`);
+      }
+      const insurer = (policy.insurer ?? "").trim();
+      const fn = (policy.insured_first_name ?? "").trim();
+      const ln = (policy.insured_last_name ?? "").trim();
+      const vf = policy.valid_from;
+      // Wir filtern Versicherer/Person/Datum clientseitig — Supabase OR mit AND-Gruppen ist unhandlich.
+      const { data } = await supabase
+        .from("policies")
+        .select("id, insurer, policy_number, insured_first_name, insured_last_name, valid_from, confirmed_at")
+        .eq("owner_id", user.id)
+        .neq("id", policy.id)
+        .limit(50);
+      if (cancelled || !data) return;
+      const matches = data.filter((d: any) => {
+        if (policy.policy_number && d.policy_number === policy.policy_number) return true;
+        if (!insurer || !vf) return false;
+        const sameInsurer = (d.insurer ?? "").trim().toLowerCase() === insurer.toLowerCase();
+        const sameFn = (d.insured_first_name ?? "").trim().toLowerCase() === fn.toLowerCase();
+        const sameLn = (d.insured_last_name ?? "").trim().toLowerCase() === ln.toLowerCase();
+        const sameDate = d.valid_from === vf;
+        return sameInsurer && sameDate && (sameFn || sameLn);
+      });
+      setDuplicates(matches);
+    };
+    void run();
+    return () => { cancelled = true; };
+  }, [user, policy]);
+
+  const discardCurrent = async () => {
+    if (!policy) return;
+    setDiscarding(true);
+    try {
+      await deletePolicy(policy.id, policy.file_path);
+      toast.success("Police verworfen");
+      navigate({ to: "/policen" });
+    } catch (e: any) {
+      toast.error("Löschen fehlgeschlagen: " + (e?.message ?? e));
+      setDiscarding(false);
+    }
+  };
 
   const conf = (key: string): number | null => {
     const c = policy?.ocr_confidence?.[key];
@@ -207,6 +261,41 @@ function PoliceBestaetigen() {
         {failed && policy.ocr_error && (
           <div className="mb-6 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-sm text-amber-900">
             <strong>Auslesen fehlgeschlagen:</strong> {policy.ocr_error}
+          </div>
+        )}
+
+        {duplicates.length > 0 && !policy.confirmed_at && (
+          <div className="mb-6 rounded-2xl bg-warning/10 border border-warning/40 p-5">
+            <div className="flex items-start gap-3">
+              <CopyIcon className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold mb-1">Mögliches Duplikat erkannt</p>
+                <p className="text-sm text-foreground-secondary mb-3">
+                  Du hast bereits {duplicates.length === 1 ? "eine ähnliche Police" : `${duplicates.length} ähnliche Policen`} gespeichert
+                  {duplicates[0].insurer ? ` (${duplicates[0].insurer}` : ""}
+                  {duplicates[0].policy_number ? `, Nr. ${duplicates[0].policy_number}` : ""}
+                  {duplicates[0].insurer ? ")" : ""}.
+                  Möchtest du diesen Upload trotzdem behalten?
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild variant="outline" size="sm" className="rounded-full">
+                    <Link to="/police-bestaetigen/$policyId" params={{ policyId: duplicates[0].id }}>
+                      Bestehende öffnen
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                    onClick={discardCurrent}
+                    disabled={discarding}
+                  >
+                    {discarding ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
+                    Diesen Upload verwerfen
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
