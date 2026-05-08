@@ -7,8 +7,8 @@ const ANON = process.env.SUPABASE_PUBLISHABLE_KEY!;
 if (!URL || !ANON) { console.error("Missing SUPABASE_URL/KEY"); process.exit(1); }
 
 const stamp = Date.now();
-const userA = { email: `rls-a-${stamp}@versica.test`, password: "TestPass!12345", first: "Anna", last: "A" };
-const userB = { email: `rls-b-${stamp}@versica.test`, password: "TestPass!12345", first: "Bert", last: "B" };
+const userA = { email: `rls-a-${stamp}@example.com`, password: "TestPass!12345", first: "Anna", last: "A" };
+const userB = { email: `rls-b-${stamp}@example.com`, password: "TestPass!12345", first: "Bert", last: "B" };
 
 function client() { return createClient(URL, ANON, { auth: { persistSession: false } }); }
 
