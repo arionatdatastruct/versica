@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, AlertTriangle, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { Loader2, AlertTriangle, CheckCircle2, Plus, Trash2, Copy as CopyIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { deletePolicy } from "@/lib/policy-actions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/police-bestaetigen/$policyId")({
