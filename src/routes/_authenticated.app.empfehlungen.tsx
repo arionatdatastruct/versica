@@ -133,13 +133,18 @@ function EmpfehlungenPage() {
             <div className="bg-primary-light rounded-3xl p-7 lg:p-9 mb-8 grid lg:grid-cols-[1fr_auto] gap-5 items-center relative overflow-hidden">
               <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-accent/10 blur-3xl" />
               <div className="relative">
-                <div className="eyebrow mb-2">Geschätztes Sparpotenzial</div>
+                <div className="eyebrow mb-2">{totalSavings > 0 ? "Geschätztes Sparpotenzial" : "Hinweise zu deinen Policen"}</div>
                 <h2 className="text-3xl lg:text-4xl font-semibold">
-                  Bis zu <span className="text-accent">CHF {totalSavings.toLocaleString("de-CH", { maximumFractionDigits: 0 })}/Jahr</span>
+                  {totalSavings > 0 ? (
+                    <>Bis zu <span className="text-accent">CHF {totalSavings.toLocaleString("de-CH", { maximumFractionDigits: 0 })}/Jahr</span></>
+                  ) : (
+                    <>{recommendations.length} {recommendations.length === 1 ? "Empfehlung" : "Empfehlungen"} zu prüfen</>
+                  )}
                 </h2>
                 <p className="text-foreground-secondary mt-2 text-sm">
-                  {recommendations.length} Empfehlung{recommendations.length === 1 ? "" : "en"} —
-                  Schätzung basierend auf Schweizer Durchschnittswerten.
+                  {totalSavings > 0
+                    ? `${recommendations.length} Empfehlung${recommendations.length === 1 ? "" : "en"} — Schätzung basierend auf Schweizer Durchschnittswerten.`
+                    : "Konkrete CHF-Einsparungen lassen sich erst nach einem Tarifvergleich beziffern."}
                 </p>
               </div>
             </div>
