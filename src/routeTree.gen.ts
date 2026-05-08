@@ -14,6 +14,7 @@ import { Route as BeratungRouteImport } from './routes/beratung'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated.route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedPolicenRouteImport } from './routes/_authenticated.policen'
 import { Route as AuthenticatedPoliceUploadRouteImport } from './routes/_authenticated.police-upload'
 import { Route as AuthenticatedKuendigungRouteImport } from './routes/_authenticated.kuendigung'
 import { Route as AuthenticatedFamilieOptimierenRouteImport } from './routes/_authenticated.familie-optimieren'
@@ -46,6 +47,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedPolicenRoute = AuthenticatedPolicenRouteImport.update({
+  id: '/policen',
+  path: '/policen',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPoliceUploadRoute =
   AuthenticatedPoliceUploadRouteImport.update({
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/kuendigung': typeof AuthenticatedKuendigungRoute
   '/police-upload': typeof AuthenticatedPoliceUploadRoute
+  '/policen': typeof AuthenticatedPolicenRoute
   '/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
 }
 export interface FileRoutesByTo {
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/kuendigung': typeof AuthenticatedKuendigungRoute
   '/police-upload': typeof AuthenticatedPoliceUploadRoute
+  '/policen': typeof AuthenticatedPolicenRoute
   '/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
 }
 export interface FileRoutesById {
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/_authenticated/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/_authenticated/kuendigung': typeof AuthenticatedKuendigungRoute
   '/_authenticated/police-upload': typeof AuthenticatedPoliceUploadRoute
+  '/_authenticated/policen': typeof AuthenticatedPolicenRoute
   '/_authenticated/police-bestaetigen/$policyId': typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/familie-optimieren'
     | '/kuendigung'
     | '/police-upload'
+    | '/policen'
     | '/police-bestaetigen/$policyId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/familie-optimieren'
     | '/kuendigung'
     | '/police-upload'
+    | '/policen'
     | '/police-bestaetigen/$policyId'
   id:
     | '__root__'
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/_authenticated/familie-optimieren'
     | '/_authenticated/kuendigung'
     | '/_authenticated/police-upload'
+    | '/_authenticated/policen'
     | '/_authenticated/police-bestaetigen/$policyId'
   fileRoutesById: FileRoutesById
 }
@@ -226,6 +238,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/policen': {
+      id: '/_authenticated/policen'
+      path: '/policen'
+      fullPath: '/policen'
+      preLoaderRoute: typeof AuthenticatedPolicenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/police-upload': {
       id: '/_authenticated/police-upload'
@@ -294,6 +313,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFamilieOptimierenRoute: typeof AuthenticatedFamilieOptimierenRoute
   AuthenticatedKuendigungRoute: typeof AuthenticatedKuendigungRoute
   AuthenticatedPoliceUploadRoute: typeof AuthenticatedPoliceUploadRoute
+  AuthenticatedPolicenRoute: typeof AuthenticatedPolicenRoute
   AuthenticatedPoliceBestaetigenPolicyIdRoute: typeof AuthenticatedPoliceBestaetigenPolicyIdRoute
 }
 
@@ -305,6 +325,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFamilieOptimierenRoute: AuthenticatedFamilieOptimierenRoute,
   AuthenticatedKuendigungRoute: AuthenticatedKuendigungRoute,
   AuthenticatedPoliceUploadRoute: AuthenticatedPoliceUploadRoute,
+  AuthenticatedPolicenRoute: AuthenticatedPolicenRoute,
   AuthenticatedPoliceBestaetigenPolicyIdRoute:
     AuthenticatedPoliceBestaetigenPolicyIdRoute,
 }
@@ -322,3 +343,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
