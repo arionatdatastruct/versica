@@ -37,11 +37,19 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const isDev = import.meta.env.DEV;
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">Etwas ist schiefgelaufen</h1>
-        <p className="mt-2 text-sm text-foreground-secondary">{error.message}</p>
+        <p className="mt-2 text-sm text-foreground-secondary">
+          Es ist ein unerwarteter Fehler aufgetreten. Bitte versuche es erneut.
+        </p>
+        {isDev && (
+          <pre className="mt-3 text-left text-xs text-foreground-tertiary bg-muted rounded-lg p-3 overflow-auto max-h-40">
+            {error.message}
+          </pre>
+        )}
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => { router.invalidate(); reset(); }}

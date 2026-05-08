@@ -42,7 +42,7 @@ function PoliceBestaetigen() {
     if (!policyId || !user) return;
     (async () => {
       const [{ data: p }, { data: ms }] = await Promise.all([
-        supabase.from("policies").select("*").eq("id", policyId).single(),
+        supabase.from("policies").select("*").eq("id", policyId).eq("owner_id", user.id).maybeSingle(),
         supabase.from("household_members")
           .select("id, first_name, last_name, is_self, household_id, households!inner(owner_id)")
           .eq("households.owner_id", user.id),
@@ -89,7 +89,7 @@ function PoliceBestaetigen() {
       valid_from: validFrom || null,
       member_id: memberId,
       confirmed_at: new Date().toISOString(),
-    }).eq("id", policyId);
+    }).eq("id", policyId).eq("owner_id", user!.id);
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Police gespeichert.");
