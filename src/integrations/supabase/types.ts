@@ -16,28 +16,46 @@ export type Database = {
     Tables: {
       household_members: {
         Row: {
+          birth_date: string | null
+          canton: string | null
           created_at: string
           first_name: string
+          gender: string | null
           household_id: string
           id: string
           is_self: boolean
           last_name: string | null
+          notes: string | null
+          postal_code: string | null
+          updated_at: string
         }
         Insert: {
+          birth_date?: string | null
+          canton?: string | null
           created_at?: string
           first_name: string
+          gender?: string | null
           household_id: string
           id?: string
           is_self?: boolean
           last_name?: string | null
+          notes?: string | null
+          postal_code?: string | null
+          updated_at?: string
         }
         Update: {
+          birth_date?: string | null
+          canton?: string | null
           created_at?: string
           first_name?: string
+          gender?: string | null
           household_id?: string
           id?: string
           is_self?: boolean
           last_name?: string | null
+          notes?: string | null
+          postal_code?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
