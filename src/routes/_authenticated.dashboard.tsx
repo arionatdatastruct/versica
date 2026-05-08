@@ -45,7 +45,20 @@ function DashboardPage() {
     const arr = policiesByMember.get(p.member_id) ?? [];
     arr.push(p); policiesByMember.set(p.member_id, arr);
   }
-  const totalMonthly = policies.reduce((s, p) => s + (p.monthly_premium ?? 0), 0);
+  const totalMonthly = policies.reduce(
+    (s, p) => s + (p.total_monthly_premium ?? p.monthly_premium ?? p.kvg_monthly_premium ?? 0),
+    0,
+  );
+
+  const handleDelete = async (p: PolicyRow) => {
+    try {
+      await deletePolicy(p.id, p.file_path);
+      setPolicies((prev) => prev.filter((x) => x.id !== p.id));
+      toast.success("Police gelöscht");
+    } catch (e: any) {
+      toast.error("Löschen fehlgeschlagen: " + (e?.message ?? e));
+    }
+  };
 
   if (loading) {
     return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
