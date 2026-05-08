@@ -26,12 +26,15 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     const fd = new FormData(e.currentTarget);
+    const first_name = String(fd.get("first_name") ?? "").trim();
+    const last_name = String(fd.get("last_name") ?? "").trim();
+    const display_name = [first_name, last_name].filter(Boolean).join(" ");
     const { error } = await supabase.auth.signUp({
       email: String(fd.get("email")),
       password: String(fd.get("password")),
       options: {
         emailRedirectTo: `${window.location.origin}/dashboard`,
-        data: { display_name: String(fd.get("display_name")) },
+        data: { display_name, first_name, last_name },
       },
     });
     setLoading(false);
@@ -90,9 +93,15 @@ function AuthPage() {
 
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
-                <div>
-                  <Label htmlFor="su-name">Wie sollen wir dich nennen?</Label>
-                  <Input id="su-name" name="display_name" required className="rounded-2xl mt-1.5" placeholder="Sandra" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="su-first">Vorname</Label>
+                    <Input id="su-first" name="first_name" required maxLength={60} className="rounded-2xl mt-1.5" placeholder="Sandra" />
+                  </div>
+                  <div>
+                    <Label htmlFor="su-last">Nachname</Label>
+                    <Input id="su-last" name="last_name" required maxLength={60} className="rounded-2xl mt-1.5" placeholder="Müller" />
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="su-email">E-Mail</Label>
