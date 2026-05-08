@@ -98,6 +98,10 @@ export type Database = {
           franchise: number | null
           id: string
           insurer: string | null
+          kvg_accident_coverage: boolean | null
+          kvg_franchise: number | null
+          kvg_model: string | null
+          kvg_monthly_premium: number | null
           member_id: string | null
           model: string | null
           monthly_premium: number | null
@@ -105,10 +109,17 @@ export type Database = {
           ocr_error: string | null
           ocr_status: string
           owner_id: string
+          policy_number: string | null
+          policy_type: string | null
           raw_data: Json | null
+          raw_text: string | null
           supplementary: string[] | null
+          total_monthly_premium: number | null
           updated_at: string
           valid_from: string | null
+          valid_to: string | null
+          vvg_products: Json | null
+          vvg_total_monthly_premium: number | null
         }
         Insert: {
           accident_coverage?: boolean | null
@@ -119,6 +130,10 @@ export type Database = {
           franchise?: number | null
           id?: string
           insurer?: string | null
+          kvg_accident_coverage?: boolean | null
+          kvg_franchise?: number | null
+          kvg_model?: string | null
+          kvg_monthly_premium?: number | null
           member_id?: string | null
           model?: string | null
           monthly_premium?: number | null
@@ -126,10 +141,17 @@ export type Database = {
           ocr_error?: string | null
           ocr_status?: string
           owner_id: string
+          policy_number?: string | null
+          policy_type?: string | null
           raw_data?: Json | null
+          raw_text?: string | null
           supplementary?: string[] | null
+          total_monthly_premium?: number | null
           updated_at?: string
           valid_from?: string | null
+          valid_to?: string | null
+          vvg_products?: Json | null
+          vvg_total_monthly_premium?: number | null
         }
         Update: {
           accident_coverage?: boolean | null
@@ -140,6 +162,10 @@ export type Database = {
           franchise?: number | null
           id?: string
           insurer?: string | null
+          kvg_accident_coverage?: boolean | null
+          kvg_franchise?: number | null
+          kvg_model?: string | null
+          kvg_monthly_premium?: number | null
           member_id?: string | null
           model?: string | null
           monthly_premium?: number | null
@@ -147,10 +173,17 @@ export type Database = {
           ocr_error?: string | null
           ocr_status?: string
           owner_id?: string
+          policy_number?: string | null
+          policy_type?: string | null
           raw_data?: Json | null
+          raw_text?: string | null
           supplementary?: string[] | null
+          total_monthly_premium?: number | null
           updated_at?: string
           valid_from?: string | null
+          valid_to?: string | null
+          vvg_products?: Json | null
+          vvg_total_monthly_premium?: number | null
         }
         Relationships: [
           {
