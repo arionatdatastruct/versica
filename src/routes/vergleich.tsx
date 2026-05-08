@@ -93,7 +93,7 @@ function Vergleich() {
                         <div className="flex sm:flex-col gap-2 justify-end">
                           <Button variant="outline" size="sm" className="rounded-full border-primary text-primary hover:bg-primary-light">Details</Button>
                           <Button asChild size="sm" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-                            <Link to="/kuendigung">Wechseln</Link>
+                            <Link to="/app/kuendigung">Wechseln</Link>
                           </Button>
                         </div>
                       </div>

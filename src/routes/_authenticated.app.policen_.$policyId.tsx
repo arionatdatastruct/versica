@@ -17,10 +17,10 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { deletePolicy } from "@/lib/policy-actions";
-import { DeleteButton } from "./_authenticated.policen";
+import { DeleteButton } from "./_authenticated.app.policen";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/policen_/$policyId")({
+export const Route = createFileRoute("/_authenticated/app/policen_/$policyId")({
   component: PolicyDetailPage,
 });
 
@@ -83,10 +83,14 @@ function PolicyDetailPage() {
           .createSignedUrl(data.file_path, 3600);
         if (cancelled) return;
         if (urlErr) {
-          setPreviewError("Vorschau-URL konnte nicht erstellt werden.");
+          console.error("[Preview] signed URL error", urlErr, "path:", data.file_path);
+          setPreviewError(`Vorschau konnte nicht geladen werden: ${urlErr.message}`);
         } else {
+          console.log("[Preview] signed URL ok for", data.file_path, "mime:", data.file_mime);
           setSignedUrl(urlData?.signedUrl ?? null);
         }
+      } else if (data) {
+        console.warn("[Preview] policy has no file_path", data.id);
       }
       setLoading(false);
     })();
@@ -100,7 +104,7 @@ function PolicyDetailPage() {
     try {
       await deletePolicy(policy.id, policy.file_path);
       toast.success("Police gelöscht");
-      navigate({ to: "/policen" });
+      navigate({ to: "/app/policen" });
     } catch (e: any) {
       toast.error("Löschen fehlgeschlagen: " + (e?.message ?? e));
     }
@@ -120,7 +124,7 @@ function PolicyDetailPage() {
         <main className="container mx-auto max-w-2xl py-16 text-center">
           <p className="mb-6">Police nicht gefunden.</p>
           <Button asChild variant="outline" className="rounded-full">
-            <Link to="/policen">
+            <Link to="/app/policen">
               <ArrowLeft className="w-4 h-4 mr-2" /> Zurück zur Übersicht
             </Link>
           </Button>
@@ -156,7 +160,7 @@ function PolicyDetailPage() {
             size="sm"
             className="rounded-full -ml-2"
           >
-            <Link to="/policen">
+            <Link to="/app/policen">
               <ArrowLeft className="w-4 h-4 mr-2" /> Alle Policen
             </Link>
           </Button>
@@ -180,7 +184,7 @@ function PolicyDetailPage() {
               className="rounded-full"
             >
               <Link
-                to="/police-bestaetigen/$policyId"
+                to="/app/police-bestaetigen/$policyId"
                 params={{ policyId: policy.id }}
               >
                 <Pencil className="w-3.5 h-3.5 mr-1.5" /> Bearbeiten
@@ -207,11 +211,17 @@ function PolicyDetailPage() {
             ) : isHeic ? (
               <EmptyPreview text={'HEIC-Vorschau wird vom Browser nicht unterstützt — über „PDF öffnen" herunterladen.'} />
             ) : isPdf ? (
-              <iframe
-                src={signedUrl}
-                title="Police-Vorschau"
-                className="w-full h-full border-0"
-              />
+              <object
+                data={signedUrl}
+                type="application/pdf"
+                className="w-full h-full"
+              >
+                <iframe
+                  src={signedUrl}
+                  title="Police-Vorschau"
+                  className="w-full h-full border-0"
+                />
+              </object>
             ) : isImage ? (
               <div className="h-full overflow-auto bg-muted/40 flex items-center justify-center p-2">
                 <img

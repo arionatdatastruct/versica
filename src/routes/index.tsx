@@ -67,7 +67,7 @@ function Index() {
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
               <Button asChild size="lg" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-7 h-14 text-base shadow-md">
-                <Link to="/police-upload">Police hochladen <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
+                <Link to="/app/police-upload">Police hochladen <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full border-2 border-primary text-primary hover:bg-primary-light hover:text-primary-dark px-7 h-14 text-base">
                 <Link to="/beratung">So funktioniert's</Link>
@@ -237,7 +237,7 @@ function Index() {
           </h2>
           <p className="text-foreground-secondary text-lg mb-8">Kostenlos starten. Kein Abo. Keine versteckten Gebühren.</p>
           <Button asChild size="lg" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-8 h-14 text-base shadow-md">
-            <Link to="/police-upload">Jetzt starten <ArrowRight className="ml-2 w-4 h-4" /></Link>
+            <Link to="/app/police-upload">Jetzt starten <ArrowRight className="ml-2 w-4 h-4" /></Link>
           </Button>
         </div>
       </section>

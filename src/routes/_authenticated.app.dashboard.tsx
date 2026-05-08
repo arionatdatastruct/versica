@@ -8,10 +8,10 @@ import { VersicaIcon } from "@/components/VersicaIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { deletePolicy } from "@/lib/policy-actions";
-import { DeleteButton } from "./_authenticated.policen";
+import { DeleteButton } from "./_authenticated.app.policen";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/dashboard")({ component: DashboardPage });
+export const Route = createFileRoute("/_authenticated/app/dashboard")({ component: DashboardPage });
 
 type PolicyRow = { id: string; insurer: string | null; model: string | null; monthly_premium: number | null; total_monthly_premium: number | null; kvg_monthly_premium: number | null; member_id: string | null; ocr_status: string; file_path: string | null };
 type MemberRow = { id: string; first_name: string; last_name: string | null; is_self: boolean };
@@ -79,10 +79,10 @@ function DashboardPage() {
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="outline" className="rounded-full">
-              <Link to="/policen"><ListChecks className="mr-2 h-4 w-4" /> Alle Policen</Link>
+              <Link to="/app/policen"><ListChecks className="mr-2 h-4 w-4" /> Alle Policen</Link>
             </Button>
             <Button asChild className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-6">
-              <Link to="/police-upload"><Upload className="mr-2 h-4 w-4" /> Police hochladen</Link>
+              <Link to="/app/police-upload"><Upload className="mr-2 h-4 w-4" /> Police hochladen</Link>
             </Button>
           </div>
         </div>
@@ -101,7 +101,7 @@ function DashboardPage() {
             </p>
           </div>
           <Button asChild size="lg" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-7 h-14 relative">
-            <Link to="/familie-optimieren">Optimierung anzeigen <ArrowRight className="w-4 h-4 ml-2" /></Link>
+            <Link to="/app/familie-optimieren">Optimierung anzeigen <ArrowRight className="w-4 h-4 ml-2" /></Link>
           </Button>
         </section>
 
@@ -112,7 +112,7 @@ function DashboardPage() {
               <h2 className="text-3xl font-semibold">{members.length} Versicherte im Überblick</h2>
             </div>
             <Button asChild variant="outline" className="rounded-full">
-              <Link to="/familie">Mitglieder verwalten</Link>
+              <Link to="/app/familie">Mitglieder verwalten</Link>
             </Button>
           </div>
           {members.length === 0 ? (
@@ -153,7 +153,7 @@ function DashboardPage() {
                           return (
                             <div key={p.id} className="flex items-center justify-between gap-2 py-1">
                               <Link
-                                to="/policen/$policyId"
+                                to="/app/policen/$policyId"
                                 params={{ policyId: p.id }}
                                 className="inline-block bg-primary-light text-primary-dark px-3 py-1 rounded-full text-xs font-medium truncate hover:bg-primary hover:text-primary-foreground transition-colors"
                               >
@@ -162,7 +162,7 @@ function DashboardPage() {
                               <div className="flex items-center gap-2 shrink-0">
                                 <p className="font-semibold text-sm">{premium != null ? `CHF ${premium.toFixed(2)}` : "—"}</p>
                                 <Button asChild variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0" title="Bearbeiten">
-                                  <Link to="/policen/$policyId" params={{ policyId: p.id }}>
+                                  <Link to="/app/policen/$policyId" params={{ policyId: p.id }}>
                                     <Pencil className="w-3.5 h-3.5" />
                                   </Link>
                                 </Button>
@@ -174,7 +174,7 @@ function DashboardPage() {
                       </div>
                     ) : (
                       <Button asChild className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-                        <Link to="/police-upload">Police für {m.first_name} hochladen</Link>
+                        <Link to="/app/police-upload">Police für {m.first_name} hochladen</Link>
                       </Button>
                     )}
                   </div>
@@ -190,7 +190,7 @@ function DashboardPage() {
             <h3 className="text-2xl font-semibold mb-3">Versica prüft eure Policen jährlich</h3>
             <p className="text-foreground-secondary mb-5">Einmal pro Jahr werden alle eure Policen automatisch geprüft – wir sagen Bescheid, wenn ein Wechsel sich lohnt.</p>
             <Button asChild variant="outline" className="rounded-full border-primary text-primary hover:bg-primary-light">
-              <Link to="/check">Manuellen Check starten</Link>
+              <Link to="/app/check">Manuellen Check starten</Link>
             </Button>
           </div>
 
@@ -209,7 +209,7 @@ function DashboardPage() {
           </div>
         </div>
 
-        <Link to="/empfehlungen" className="block bg-surface-beige rounded-3xl p-7 hover:shadow-md transition-shadow">
+        <Link to="/app/empfehlungen" className="block bg-surface-beige rounded-3xl p-7 hover:shadow-md transition-shadow">
           <div className="grid md:grid-cols-[1fr_auto] gap-5 items-center">
             <div>
               <div className="text-xs uppercase tracking-[0.08em] font-medium text-accent mb-2">Empfehlungs-Programm</div>

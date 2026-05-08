@@ -19,7 +19,7 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) navigate({ to: "/dashboard", replace: true });
+    if (user) navigate({ to: "/app/dashboard", replace: true });
   }, [user, navigate]);
 
   const handleSignUp = async (e: FormEvent<HTMLFormElement>) => {
@@ -40,7 +40,7 @@ function AuthPage() {
     setLoading(false);
     if (error) return toast.error(error.message);
     toast.success("Willkommen bei Versica!");
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/app/dashboard" });
   };
 
   const handleSignIn = async (e: FormEvent<HTMLFormElement>) => {
@@ -53,7 +53,7 @@ function AuthPage() {
     });
     setLoading(false);
     if (error) return toast.error(error.message);
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/app/dashboard" });
   };
 
   return (

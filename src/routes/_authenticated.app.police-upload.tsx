@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/police-upload")({ component: PoliceUpload });
+export const Route = createFileRoute("/_authenticated/app/police-upload")({ component: PoliceUpload });
 
 const steps = [
   { icon: Lock, title: "Sicher hochladen", text: "Deine Datei wird verschlüsselt übertragen und in der Schweiz/EU gespeichert." },
@@ -62,7 +62,7 @@ function PoliceUpload() {
         console.error("OCR fehlgeschlagen", ocrErr);
       }
 
-      navigate({ to: "/police-bestaetigen/$policyId", params: { policyId } });
+      navigate({ to: "/app/police-bestaetigen/$policyId", params: { policyId } });
     } catch (e: any) {
       console.error(e);
       toast.error(e?.message ?? "Upload fehlgeschlagen");

@@ -5,10 +5,11 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const navItems = [
-  { label: "Policen", to: "/policen", authOnly: true },
+  { label: "Dashboard", to: "/app/dashboard", authOnly: true },
+  { label: "Policen", to: "/app/policen", authOnly: true },
+  { label: "Familie", to: "/app/familie", authOnly: true },
   { label: "Beratung", to: "/beratung", authOnly: false },
   { label: "Vergleich", to: "/vergleich", authOnly: false },
-  { label: "Familie", to: "/familie", authOnly: true },
 ] as const;
 
 const langs = ["DE", "FR", "IT", "EN"];
@@ -79,7 +80,7 @@ export const Header = () => {
           {user ? (
             <>
               <Link
-                to="/dashboard"
+                to="/app/dashboard"
                 className="hidden sm:flex w-10 h-10 rounded-full bg-primary text-primary-foreground items-center justify-center font-semibold text-sm"
                 title={user.email ?? ""}
               >

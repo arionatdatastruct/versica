@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { MemberFormDialog, type MemberRecord } from "@/components/family/MemberFormDialog";
 import { calculateAge, deriveRole, ROLE_LABEL, GENDER_LABEL } from "@/lib/family";
 
-export const Route = createFileRoute("/_authenticated/familie")({ component: FamiliePage });
+export const Route = createFileRoute("/_authenticated/app/familie")({ component: FamiliePage });
 
 function FamiliePage() {
   const { user } = useAuth();
@@ -112,7 +112,7 @@ function FamiliePage() {
         )}
 
         <div className="mt-8">
-          <Button asChild variant="ghost"><Link to="/dashboard">← Zurück zum Dashboard</Link></Button>
+          <Button asChild variant="ghost"><Link to="/app/dashboard">← Zurück zum Dashboard</Link></Button>
         </div>
       </main>
       <Footer />

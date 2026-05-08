@@ -15,7 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { deletePolicy } from "@/lib/policy-actions";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/police-bestaetigen/$policyId")({
+export const Route = createFileRoute("/_authenticated/app/police-bestaetigen/$policyId")({
   component: PoliceBestaetigen,
 });
 
@@ -104,8 +104,16 @@ function PoliceBestaetigen() {
             .from("policy-uploads")
             .createSignedUrl(p.file_path, 3600);
           if (cancelled) return;
-          if (urlErr) setPreviewError("Vorschau-URL konnte nicht erstellt werden.");
-          else setSignedUrl(urlData?.signedUrl ?? null);
+          if (urlErr) {
+            console.error("[Preview] signed URL error", urlErr, "path:", p.file_path);
+            setPreviewError(`Vorschau konnte nicht geladen werden: ${urlErr.message}`);
+          } else {
+            console.log("[Preview] signed URL ok for", p.file_path, "mime:", p.file_mime);
+            setSignedUrl(urlData?.signedUrl ?? null);
+          }
+        } else {
+          console.warn("[Preview] policy has no file_path", p.id);
+          setPreviewError("Keine Originaldatei verknüpft – bitte erneut hochladen.");
         }
       }
       if (ms) {
@@ -174,7 +182,7 @@ function PoliceBestaetigen() {
     try {
       await deletePolicy(policy.id, policy.file_path);
       toast.success("Police verworfen");
-      navigate({ to: "/policen" });
+      navigate({ to: "/app/policen" });
     } catch (e: any) {
       toast.error("Löschen fehlgeschlagen: " + (e?.message ?? e));
       setDiscarding(false);
@@ -230,7 +238,7 @@ function PoliceBestaetigen() {
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Police gespeichert.");
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/app/dashboard" });
   };
 
   if (loading) {
@@ -288,7 +296,9 @@ function PoliceBestaetigen() {
               ) : isHeic ? (
                 <EmptyPreview text={'HEIC-Vorschau wird vom Browser nicht unterstützt — über „PDF öffnen" herunterladen.'} />
               ) : isPdf ? (
-                <iframe src={signedUrl} title="Police-Vorschau" className="w-full h-full border-0" />
+                <object data={signedUrl} type="application/pdf" className="w-full h-full">
+                  <iframe src={signedUrl} title="Police-Vorschau" className="w-full h-full border-0" />
+                </object>
               ) : isImage ? (
                 <div className="h-full overflow-auto bg-muted/40 flex items-center justify-center p-2">
                   <img src={signedUrl} alt="Police-Vorschau" className="max-w-full h-auto rounded-md shadow-sm" />
@@ -333,7 +343,7 @@ function PoliceBestaetigen() {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild variant="outline" size="sm" className="rounded-full">
-                    <Link to="/police-bestaetigen/$policyId" params={{ policyId: duplicates[0].id }}>
+                    <Link to="/app/police-bestaetigen/$policyId" params={{ policyId: duplicates[0].id }}>
                       Bestehende öffnen
                     </Link>
                   </Button>
@@ -467,7 +477,7 @@ function PoliceBestaetigen() {
         </div>
 
         <div className="flex items-center justify-between mt-6 gap-3">
-          <Button variant="outline" onClick={() => navigate({ to: "/police-upload" })}>Erneut hochladen</Button>
+          <Button variant="outline" onClick={() => navigate({ to: "/app/police-upload" })}>Erneut hochladen</Button>
           <Button onClick={save} disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
             Speichern & weiter
