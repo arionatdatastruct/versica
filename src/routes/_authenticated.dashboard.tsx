@@ -1,46 +1,185 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FileText, Home, ShieldCheck, Upload } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { ArrowRight, Copy, Check, AlertTriangle, FileText, Home, ShieldCheck, Upload, Loader2 } from "lucide-react";
+import { VersicaIcon } from "@/components/VersicaIcon";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
-export const Route = createFileRoute("/_authenticated/dashboard")({
-  component: DashboardPage,
-});
+export const Route = createFileRoute("/_authenticated/dashboard")({ component: DashboardPage });
+
+type PolicyRow = { id: string; insurer: string | null; model: string | null; monthly_premium: number | null; member_id: string | null; ocr_status: string };
+type MemberRow = { id: string; first_name: string; last_name: string | null; is_self: boolean };
 
 function DashboardPage() {
+  const { user } = useAuth();
+  const [members, setMembers] = useState<MemberRow[]>([]);
+  const [policies, setPolicies] = useState<PolicyRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const [{ data: ms }, { data: ps }] = await Promise.all([
+        ((supabase as any).from("household_members") as any)
+          .select("id, first_name, last_name, is_self, household_id, households!inner(owner_id)")
+          .eq("households.owner_id", user.id),
+        ((supabase as any).from("policies") as any)
+          .select("id, insurer, model, monthly_premium, member_id, ocr_status")
+          .eq("owner_id", user.id),
+      ]);
+      setMembers((ms ?? []).map((m: any) => ({ id: m.id, first_name: m.first_name, last_name: m.last_name, is_self: m.is_self })));
+      setPolicies(ps ?? []);
+      setLoading(false);
+    })();
+  }, [user]);
+
+  const policiesByMember = new Map<string, PolicyRow[]>();
+  for (const p of policies) if (p.member_id) {
+    const arr = policiesByMember.get(p.member_id) ?? [];
+    arr.push(p); policiesByMember.set(p.member_id, arr);
+  }
+  const totalMonthly = policies.reduce((s, p) => s + (p.monthly_premium ?? 0), 0);
+
+  if (loading) {
+    return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-12 lg:py-16">
-        <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+      <main className="container mx-auto py-12 space-y-10 px-4">
+        <div className="flex items-start gap-4 justify-between flex-wrap">
           <div>
-            <p className="eyebrow mb-3">Familien-Dashboard</p>
-            <h1 className="text-4xl font-semibold tracking-tight lg:text-5xl">Deine Versicherungen auf einen Blick</h1>
-            <p className="mt-4 max-w-2xl text-foreground-secondary">
-              Sobald deine Police analysiert ist, findest du hier Deckungen, Fristen und Optimierungsvorschläge.
+            <h1 className="text-3xl lg:text-4xl font-semibold mb-2">Hi {user?.user_metadata?.display_name ?? "Familie"}</h1>
+            <p className="text-foreground-secondary text-sm max-w-xl">
+              {policies.length === 0
+                ? "Lade deine erste Police hoch, damit Versica sie für dich analysieren kann."
+                : `Versica hat ${policies.length} Police(n) analysiert.`}
             </p>
           </div>
-          <Button asChild className="rounded-full bg-accent px-6 text-accent-foreground hover:bg-accent/90">
-            <Link to="/police-upload">
-              <Upload className="mr-2 h-4 w-4" /> Police hochladen
-            </Link>
+          <Button asChild className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-6">
+            <Link to="/police-upload"><Upload className="mr-2 h-4 w-4" /> Police hochladen</Link>
           </Button>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-3">
-          {[
-            { label: "Policen", value: "0", icon: FileText },
-            { label: "Haushalt", value: "Bereit", icon: Home },
-            { label: "Datenschutz", value: "Aktiv", icon: ShieldCheck },
-          ].map((item) => (
-            <div key={item.label} className="card-soft p-7">
-              <item.icon className="mb-5 h-7 w-7 text-primary" strokeWidth={2} />
-              <p className="text-sm text-foreground-secondary">{item.label}</p>
-              <p className="mt-1 text-3xl font-semibold">{item.value}</p>
+        <section className="bg-primary-light rounded-3xl p-8 lg:p-10 grid lg:grid-cols-[1fr_auto] gap-6 items-center relative overflow-hidden">
+          <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-accent/10 blur-3xl" />
+          <div className="relative">
+            <div className="eyebrow mb-3">Übersicht</div>
+            <h2 className="text-3xl lg:text-4xl font-semibold mb-3">
+              Aktuelle Prämie: <span className="text-accent">CHF {totalMonthly.toFixed(2)}/Mt</span>
+            </h2>
+            <p className="text-foreground-secondary">
+              {policies.length > 0
+                ? "Lass dir mögliche Einsparungen anzeigen."
+                : "Sobald du Policen hochlädst, siehst du hier dein Einsparpotenzial."}
+            </p>
+          </div>
+          <Button asChild size="lg" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 px-7 h-14 relative">
+            <Link to="/familie-optimieren">Optimierung anzeigen <ArrowRight className="w-4 h-4 ml-2" /></Link>
+          </Button>
+        </section>
+
+        <section>
+          <div className="mb-6">
+            <div className="eyebrow mb-2">Familienmitglieder</div>
+            <h2 className="text-3xl font-semibold">{members.length} Versicherte im Überblick</h2>
+          </div>
+          {members.length === 0 ? (
+            <div className="card-soft p-8 text-center text-foreground-secondary">
+              Noch keine Familienmitglieder. Beim Bestätigen einer Police werden sie automatisch angelegt.
             </div>
-          ))}
+          ) : (
+            <div className="grid md:grid-cols-2 gap-5">
+              {members.map((m) => {
+                const memberPolicies = policiesByMember.get(m.id) ?? [];
+                const initials = (m.first_name[0] + (m.last_name?.[0] ?? "")).toUpperCase();
+                const fullName = `${m.first_name}${m.last_name ? ` ${m.last_name}` : ""}`;
+                const has = memberPolicies.length > 0;
+                return (
+                  <div key={m.id} className="card-soft p-6">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-14 h-14 rounded-full bg-primary-light text-primary-dark flex items-center justify-center font-semibold flex-shrink-0">
+                        {initials}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-lg">{fullName}</p>
+                        <p className="text-sm text-foreground-secondary">{m.is_self ? "Du" : "Familienmitglied"}</p>
+                      </div>
+                      {has ? (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-success/15 text-success text-xs font-medium">
+                          <Check className="w-3.5 h-3.5" strokeWidth={3} /> Police geladen
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-accent-light text-accent text-xs font-medium">
+                          <AlertTriangle className="w-3.5 h-3.5" /> Police fehlt
+                        </span>
+                      )}
+                    </div>
+                    {has ? (
+                      memberPolicies.map((p) => (
+                        <div key={p.id} className="flex items-center justify-between mb-3">
+                          <span className="inline-block bg-primary-light text-primary-dark px-3 py-1 rounded-full text-xs font-medium">
+                            {p.insurer ?? "?"} · {p.model ?? "—"}
+                          </span>
+                          <p className="font-semibold">{p.monthly_premium != null ? `CHF ${p.monthly_premium.toFixed(2)}/Mt` : "—"}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <Button asChild className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
+                        <Link to="/police-upload">Police für {m.first_name} hochladen</Link>
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        <div className="grid lg:grid-cols-2 gap-5">
+          <div className="bg-primary-light rounded-3xl p-7">
+            <div className="eyebrow mb-2">Versicherungs-Doktor</div>
+            <h3 className="text-2xl font-semibold mb-3">Versica prüft eure Policen jährlich</h3>
+            <p className="text-foreground-secondary mb-5">Einmal pro Jahr werden alle eure Policen automatisch geprüft – wir sagen Bescheid, wenn ein Wechsel sich lohnt.</p>
+            <Button asChild variant="outline" className="rounded-full border-primary text-primary hover:bg-primary-light">
+              <Link to="/check">Manuellen Check starten</Link>
+            </Button>
+          </div>
+
+          <div className="card-soft p-7">
+            <div className="eyebrow mb-2">Familien-Beratung</div>
+            <div className="flex items-start gap-4 mb-4">
+              <VersicaIcon size="md" />
+              <div>
+                <h3 className="text-2xl font-semibold mb-1">Frag Versica für die ganze Familie</h3>
+                <p className="text-foreground-secondary text-sm">Versica kennt alle hochgeladenen Policen und gibt konkrete Empfehlungen.</p>
+              </div>
+            </div>
+            <Button asChild className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
+              <Link to="/beratung">Beratung starten <ArrowRight className="w-4 h-4 ml-2" /></Link>
+            </Button>
+          </div>
         </div>
+
+        <Link to="/empfehlungen" className="block bg-surface-beige rounded-3xl p-7 hover:shadow-md transition-shadow">
+          <div className="grid md:grid-cols-[1fr_auto] gap-5 items-center">
+            <div>
+              <div className="text-xs uppercase tracking-[0.08em] font-medium text-accent mb-2">Empfehlungs-Programm</div>
+              <h3 className="text-2xl font-semibold mb-2">Empfehlen, sparen, profitieren</h3>
+              <p className="text-foreground-secondary">Erhaltet CHF 25 Cashback pro Person, die durch eure Empfehlung wechselt.</p>
+            </div>
+            <div className="flex items-center gap-2 bg-surface rounded-full pl-5 pr-2 py-2 border border-border">
+              <span className="text-sm text-foreground-secondary">versica.ch/r/{user?.id?.slice(0, 8) ?? "you"}</span>
+              <span className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                <Copy className="w-4 h-4" />
+              </span>
+            </div>
+          </div>
+        </Link>
       </main>
       <Footer />
     </div>
