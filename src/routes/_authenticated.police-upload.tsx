@@ -36,7 +36,7 @@ function PoliceUpload() {
     setStatusMsg("Lade Police hoch …");
 
     try {
-      const { data: inserted, error: insErr } = await ((supabase as any).from("policies") as any)
+      const { data: inserted, error: insErr } = await supabase.from("policies")
         .insert({ owner_id: user.id, ocr_status: "manual", file_mime: file.type })
         .select("id").single();
       if (insErr || !inserted) throw insErr ?? new Error("Insert failed");
@@ -48,7 +48,7 @@ function PoliceUpload() {
         .upload(path, file, { contentType: file.type, upsert: false });
       if (upErr) throw upErr;
 
-      const { error: updErr } = await ((supabase as any).from("policies") as any)
+      const { error: updErr } = await supabase.from("policies")
         .update({ file_path: path }).eq("id", policyId);
       if (updErr) throw updErr;
 
