@@ -252,11 +252,53 @@ function PoliceBestaetigen() {
 
   const failed = policy.ocr_status === "failed";
   const completed = policy.ocr_status === "completed";
+  const isPdf =
+    (policy.file_mime ?? "").includes("pdf") ||
+    (policy.file_path ?? "").toLowerCase().endsWith(".pdf");
+  const isImage = (policy.file_mime ?? "").startsWith("image/");
+  const isHeic =
+    (policy.file_mime ?? "").includes("heic") ||
+    (policy.file_mime ?? "").includes("heif");
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto max-w-2xl py-12 lg:py-16 px-4">
+      <main className="container mx-auto py-8 lg:py-10 px-4">
+        <div className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(420px,0.85fr)] gap-6 items-start">
+          <aside className="card-soft overflow-hidden lg:sticky lg:top-6 h-[58vh] lg:h-[calc(100vh-7rem)]">
+            <div className="h-14 px-4 border-b border-border flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold truncate">Dokument-Vorschau</p>
+              {signedUrl && (
+                <Button asChild variant="outline" size="sm" className="rounded-full shrink-0">
+                  <a href={signedUrl} target="_blank" rel="noreferrer">
+                    <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> PDF öffnen
+                  </a>
+                </Button>
+              )}
+            </div>
+            <div className="h-[calc(100%-3.5rem)]">
+              {!policy.file_path ? (
+                <EmptyPreview text="Keine Originaldatei hinterlegt." />
+              ) : previewError ? (
+                <EmptyPreview text={previewError} />
+              ) : !signedUrl ? (
+                <div className="h-full flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : isHeic ? (
+                <EmptyPreview text={'HEIC-Vorschau wird vom Browser nicht unterstützt — über „PDF öffnen" herunterladen.'} />
+              ) : isPdf ? (
+                <iframe src={signedUrl} title="Police-Vorschau" className="w-full h-full border-0" />
+              ) : isImage ? (
+                <div className="h-full overflow-auto bg-muted/40 flex items-center justify-center p-2">
+                  <img src={signedUrl} alt="Police-Vorschau" className="max-w-full h-auto rounded-md shadow-sm" />
+                </div>
+              ) : (
+                <EmptyPreview text="Dateiformat kann nicht eingebettet werden." />
+              )}
+            </div>
+          </aside>
+          <section className="min-w-0">
         <div className="flex items-start gap-4 mb-8">
           <VersicaIcon size="lg" />
           <div className="bg-primary-light rounded-3xl rounded-tl-md px-5 py-4 shadow-sm flex-1">
@@ -430,6 +472,8 @@ function PoliceBestaetigen() {
             {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
             Speichern & weiter
           </Button>
+        </div>
+          </section>
         </div>
       </main>
       <Footer />
