@@ -18,10 +18,13 @@ function AuthGuard() {
       navigate({ to: "/auth", replace: true });
       return;
     }
-    const onboardedAt = (user.user_metadata as Record<string, unknown> | null)?.onboarded_at;
+    const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+    const onboardedAt = meta.onboarded_at;
     const isOnWelcome = location.pathname === "/app/willkommen";
     if (!onboardedAt && !isOnWelcome) {
       navigate({ to: "/app/willkommen", replace: true });
+    } else if (onboardedAt && isOnWelcome) {
+      navigate({ to: "/app/dashboard", replace: true });
     }
   }, [user, loading, navigate, location.pathname]);
 

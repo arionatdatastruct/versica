@@ -133,13 +133,18 @@ function EmpfehlungenPage() {
             <div className="bg-primary-light rounded-3xl p-7 lg:p-9 mb-8 grid lg:grid-cols-[1fr_auto] gap-5 items-center relative overflow-hidden">
               <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-accent/10 blur-3xl" />
               <div className="relative">
-                <div className="eyebrow mb-2">Geschätztes Sparpotenzial</div>
+                <div className="eyebrow mb-2">{totalSavings > 0 ? "Geschätztes Sparpotenzial" : "Hinweise zu deinen Policen"}</div>
                 <h2 className="text-3xl lg:text-4xl font-semibold">
-                  Bis zu <span className="text-accent">CHF {totalSavings.toLocaleString("de-CH", { maximumFractionDigits: 0 })}/Jahr</span>
+                  {totalSavings > 0 ? (
+                    <>Bis zu <span className="text-accent">CHF {totalSavings.toLocaleString("de-CH", { maximumFractionDigits: 0 })}/Jahr</span></>
+                  ) : (
+                    <>{recommendations.length} {recommendations.length === 1 ? "Empfehlung" : "Empfehlungen"} zu prüfen</>
+                  )}
                 </h2>
                 <p className="text-foreground-secondary mt-2 text-sm">
-                  {recommendations.length} Empfehlung{recommendations.length === 1 ? "" : "en"} —
-                  Schätzung basierend auf Schweizer Durchschnittswerten.
+                  {totalSavings > 0
+                    ? `${recommendations.length} Empfehlung${recommendations.length === 1 ? "" : "en"} — Schätzung basierend auf Schweizer Durchschnittswerten.`
+                    : "Konkrete CHF-Einsparungen lassen sich erst nach einem Tarifvergleich beziffern."}
                 </p>
               </div>
             </div>
@@ -200,10 +205,16 @@ function RecommendationCard({ rec }: { rec: Recommendation }) {
         )}
       </div>
       <div className="text-right md:text-right md:min-w-[120px]">
-        <p className="text-2xl font-semibold text-accent">
-          CHF {rec.estimatedSavingsChf.toLocaleString("de-CH", { maximumFractionDigits: 0 })}
-        </p>
-        <p className="text-xs text-foreground-secondary">geschätzt / Jahr</p>
+        {rec.estimatedSavingsChf > 0 ? (
+          <>
+            <p className="text-2xl font-semibold text-accent">
+              CHF {rec.estimatedSavingsChf.toLocaleString("de-CH", { maximumFractionDigits: 0 })}
+            </p>
+            <p className="text-xs text-foreground-secondary">geschätzt / Jahr</p>
+          </>
+        ) : (
+          <p className="text-xs text-foreground-tertiary">Hinweis</p>
+        )}
       </div>
     </div>
   );
@@ -336,15 +347,16 @@ function buildRecommendations(policies: PolicyRow[], members: MemberRow[]): Reco
       }
     }
 
-    // Rule 4: VVG over CHF 100/Mt — review supplementary
+    // Rule 4: VVG over CHF 100/Mt — review supplementary (no savings estimate;
+    // depends entirely on which benefits the household actually uses)
     const vvg = p.vvg_total_monthly_premium ?? 0;
     if (vvg >= 100) {
       recs.push({
         id: `vvg-${p.id}`,
         title: "Zusatzversicherungen überprüfen",
-        description: `Du zahlst CHF ${vvg.toFixed(0)}/Mt für Zusätze. Prüfe, welche Leistungen du wirklich nutzt.`,
-        estimatedSavingsChf: Math.round(vvg * 12 * 0.25),
-        severity: "medium",
+        description: `Du zahlst CHF ${vvg.toFixed(0)}/Mt für Zusätze (CHF ${(vvg * 12).toFixed(0)}/Jahr). Prüfe, welche Leistungen du im letzten Jahr wirklich genutzt hast.`,
+        estimatedSavingsChf: 0,
+        severity: "info",
         policyId: p.id,
         memberName,
         cta: { label: "Police ansehen", to: "/app/policen" },

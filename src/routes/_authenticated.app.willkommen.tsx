@@ -117,14 +117,20 @@ function WelcomeWizard() {
 
   const finish = async () => {
     setSaving(true);
+    const onboardedAt = new Date().toISOString();
     const { error } = await supabase.auth.updateUser({
-      data: { onboarded_at: new Date().toISOString() },
+      data: { onboarded_at: onboardedAt },
     });
-    setSaving(false);
     if (error) {
+      setSaving(false);
       toast.error(error.message);
       return;
     }
+    // Force the local session to pick up the new user_metadata so the
+    // AuthGuard sees onboarded_at on the next render and stops redirecting
+    // back to /app/willkommen.
+    await supabase.auth.refreshSession();
+    setSaving(false);
     toast.success("Willkommen bei Versica!");
     navigate({ to: "/app/dashboard", replace: true });
   };
