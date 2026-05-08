@@ -20,7 +20,7 @@ import { deletePolicy } from "@/lib/policy-actions";
 import { DeleteButton } from "./_authenticated.policen";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/policen_/$policyId")({
+export const Route = createFileRoute("/_authenticated/app/policen_/$policyId")({
   component: PolicyDetailPage,
 });
 

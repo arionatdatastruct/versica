@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/police-upload")({ component: PoliceUpload });
+export const Route = createFileRoute("/_authenticated/app/police-upload")({ component: PoliceUpload });
 
 const steps = [
   { icon: Lock, title: "Sicher hochladen", text: "Deine Datei wird verschlüsselt übertragen und in der Schweiz/EU gespeichert." },
