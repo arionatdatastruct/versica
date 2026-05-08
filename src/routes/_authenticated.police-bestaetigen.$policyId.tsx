@@ -57,14 +57,27 @@ function PoliceBestaetigen() {
 
   useEffect(() => {
     if (!policyId || !user) return;
-    (async () => {
+    let cancelled = false;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 30; // 30 * 2s = 60s
+
+    const load = async (): Promise<void> => {
       const [{ data: pRaw }, { data: ms }] = await Promise.all([
         supabase.from("policies").select("*").eq("id", policyId).eq("owner_id", user.id).maybeSingle(),
         supabase.from("household_members")
           .select("id, first_name, last_name, is_self, household_id, households!inner(owner_id)")
           .eq("households.owner_id", user.id),
       ]);
+      if (cancelled) return;
       const p: any = pRaw;
+
+      // Wenn OCR noch läuft, kurz pollen statt direkt anzuzeigen
+      if (p && (p.ocr_status === "pending" || p.ocr_status === "processing") && attempts < MAX_ATTEMPTS) {
+        attempts++;
+        setTimeout(load, 2000);
+        return;
+      }
+
       if (p) {
         setPolicy(p);
         setPolicyType(p.policy_type ?? "");
@@ -84,7 +97,6 @@ function PoliceBestaetigen() {
           id: m.id, first_name: m.first_name, last_name: m.last_name, is_self: m.is_self,
         }));
         setMembers(mapped);
-        // Auto-Match: wenn OCR Vorname/Nachname/Geb erkannt hat
         let autoMatch: string | undefined;
         if (p?.insured_first_name || p?.insured_last_name) {
           const fn = (p.insured_first_name ?? "").toLowerCase().trim();
@@ -97,7 +109,10 @@ function PoliceBestaetigen() {
         setMemberId((cur) => cur || autoMatch || mapped.find((m) => m.is_self)?.id || mapped[0]?.id || "");
       }
       setLoading(false);
-    })();
+    };
+
+    load();
+    return () => { cancelled = true; };
   }, [policyId, user]);
 
   const conf = (key: string): number | null => {
