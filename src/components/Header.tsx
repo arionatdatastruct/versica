@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const navItems = [
   { label: "Beratung", to: "/beratung" },
   { label: "Vergleich", to: "/vergleich" },
-  { label: "Familie", to: "/dashboard" },
+  { label: "Familie", to: "/familie" },
 ] as const;
 
 const langs = ["DE", "FR", "IT", "EN"];

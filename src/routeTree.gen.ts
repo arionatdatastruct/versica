@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedPoliceUploadRouteImport } from './routes/_authenticated.police-upload'
 import { Route as AuthenticatedKuendigungRouteImport } from './routes/_authenticated.kuendigung'
 import { Route as AuthenticatedFamilieOptimierenRouteImport } from './routes/_authenticated.familie-optimieren'
+import { Route as AuthenticatedFamilieRouteImport } from './routes/_authenticated.familie'
 import { Route as AuthenticatedEmpfehlungenRouteImport } from './routes/_authenticated.empfehlungen'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
 import { Route as AuthenticatedCheckRouteImport } from './routes/_authenticated.check'
@@ -63,6 +64,11 @@ const AuthenticatedFamilieOptimierenRoute =
     path: '/familie-optimieren',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFamilieRoute = AuthenticatedFamilieRouteImport.update({
+  id: '/familie',
+  path: '/familie',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedEmpfehlungenRoute =
   AuthenticatedEmpfehlungenRouteImport.update({
     id: '/empfehlungen',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/check': typeof AuthenticatedCheckRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/empfehlungen': typeof AuthenticatedEmpfehlungenRoute
+  '/familie': typeof AuthenticatedFamilieRoute
   '/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/kuendigung': typeof AuthenticatedKuendigungRoute
   '/police-upload': typeof AuthenticatedPoliceUploadRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/check': typeof AuthenticatedCheckRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/empfehlungen': typeof AuthenticatedEmpfehlungenRoute
+  '/familie': typeof AuthenticatedFamilieRoute
   '/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/kuendigung': typeof AuthenticatedKuendigungRoute
   '/police-upload': typeof AuthenticatedPoliceUploadRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/_authenticated/check': typeof AuthenticatedCheckRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/empfehlungen': typeof AuthenticatedEmpfehlungenRoute
+  '/_authenticated/familie': typeof AuthenticatedFamilieRoute
   '/_authenticated/familie-optimieren': typeof AuthenticatedFamilieOptimierenRoute
   '/_authenticated/kuendigung': typeof AuthenticatedKuendigungRoute
   '/_authenticated/police-upload': typeof AuthenticatedPoliceUploadRoute
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/check'
     | '/dashboard'
     | '/empfehlungen'
+    | '/familie'
     | '/familie-optimieren'
     | '/kuendigung'
     | '/police-upload'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/check'
     | '/dashboard'
     | '/empfehlungen'
+    | '/familie'
     | '/familie-optimieren'
     | '/kuendigung'
     | '/police-upload'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/_authenticated/check'
     | '/_authenticated/dashboard'
     | '/_authenticated/empfehlungen'
+    | '/_authenticated/familie'
     | '/_authenticated/familie-optimieren'
     | '/_authenticated/kuendigung'
     | '/_authenticated/police-upload'
@@ -236,6 +248,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFamilieOptimierenRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/familie': {
+      id: '/_authenticated/familie'
+      path: '/familie'
+      fullPath: '/familie'
+      preLoaderRoute: typeof AuthenticatedFamilieRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/empfehlungen': {
       id: '/_authenticated/empfehlungen'
       path: '/empfehlungen'
@@ -271,6 +290,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCheckRoute: typeof AuthenticatedCheckRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEmpfehlungenRoute: typeof AuthenticatedEmpfehlungenRoute
+  AuthenticatedFamilieRoute: typeof AuthenticatedFamilieRoute
   AuthenticatedFamilieOptimierenRoute: typeof AuthenticatedFamilieOptimierenRoute
   AuthenticatedKuendigungRoute: typeof AuthenticatedKuendigungRoute
   AuthenticatedPoliceUploadRoute: typeof AuthenticatedPoliceUploadRoute
@@ -281,6 +301,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCheckRoute: AuthenticatedCheckRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEmpfehlungenRoute: AuthenticatedEmpfehlungenRoute,
+  AuthenticatedFamilieRoute: AuthenticatedFamilieRoute,
   AuthenticatedFamilieOptimierenRoute: AuthenticatedFamilieOptimierenRoute,
   AuthenticatedKuendigungRoute: AuthenticatedKuendigungRoute,
   AuthenticatedPoliceUploadRoute: AuthenticatedPoliceUploadRoute,
