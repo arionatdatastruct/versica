@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Versica",
+    "slug": "versica",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "versica",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "ch.versica.app"
+    },
+    "android": {
+      "package": "ch.versica.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-secure-store",
+        {
+          "requireAuthentication": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "02c7df17-fd94-4ddb-af14-cb78f60953d2"
+      }
+    },
+    "owner": "arionatdatastruct"
+  }
+}

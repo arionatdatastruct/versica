@@ -1,0 +1,37 @@
+{
+  "name": "versica-mobile",
+  "main": "expo-router/entry",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~56.0.13",
+    "@supabase/supabase-js": "^2.105.3",
+    "expo": "~56.0.5",
+    "expo-document-picker": "~56.0.4",
+    "expo-font": "~56.0.5",
+    "expo-image-picker": "~56.0.14",
+    "expo-router": "~56.2.7",
+    "expo-secure-store": "~56.0.4",
+    "expo-splash-screen": "~56.0.10",
+    "expo-status-bar": "~56.0.4",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.85.3",
+    "react-native-gesture-handler": "~2.31.2",
+    "react-native-reanimated": "~4.3.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.25.2",
+    "react-native-url-polyfill": "^2.0.0",
+    "react-native-web": "^0.21.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@types/react": "~19.2.0",
+    "typescript": "~6.0.3"
+  }
+}
